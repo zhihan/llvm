@@ -179,7 +179,7 @@ class Type(LLVMObject):
         return lib.LLVMPrintTypeToString(self)
 
     @classmethod
-    def Int8Type(cls, context):
+    def Int8(cls, context):
         return Type(lib.LLVMInt8Type(context))
     
 class Value(LLVMObject):
