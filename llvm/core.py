@@ -179,9 +179,15 @@ class Type(LLVMObject):
         return lib.LLVMPrintTypeToString(self)
 
     @classmethod
-    def Int8(cls, context):
-        return Type(lib.LLVMInt8Type(context))
-    
+    def Int8(cls, context=None):
+        if context is not None:
+            return Type(lib.LLVMInt8TypeInContext(context))
+        else:
+            return Type(lib.LLVMInt8Type())
+        
+    def dump(self):
+        lib.LLVMDumpType(self)
+            
 class Value(LLVMObject):
     
     def __init__(self, value):
@@ -491,11 +497,17 @@ def register_library(library):
     library.LLVMShutdown.restype = None
 
     # Types
-    library.LLVMInt8Type.argtypes = [Context]
+    library.LLVMInt8TypeInContext.argtypes = [Context]
+    library.LLVMInt8TypeInContext.restype = c_object_p
+    
+    library.LLVMInt8Type.argtypes = []
     library.LLVMInt8Type.restype = c_object_p
 
     library.LLVMPrintTypeToString.argtypes = [Type]
     library.LLVMPrintTypeToString.restype = c_char_p
+
+    library.LLVMDumpType.argtype = [Type]
+    library.LLVMDumpType.restype = None
 
     # Pass Registry declarations.
     library.LLVMGetGlobalPassRegistry.argtypes = []

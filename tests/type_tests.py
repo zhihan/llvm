@@ -10,6 +10,11 @@ class TypeTest(unittest.TestCase):
     def testCreateInt8(self):
         ty = Type.Int8(self.global_context)
         self.assertEqual('i8', ty.name)
+        ty.dump()
+
+        ty = Type.Int8()
+        self.assertEqual('i8', ty.name)
+        ty.dump()
 
 
 if __name__ == '__main__':
