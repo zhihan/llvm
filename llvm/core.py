@@ -184,6 +184,14 @@ class Type(LLVMObject):
             return Type(lib.LLVMInt8TypeInContext(context))
         else:
             return Type(lib.LLVMInt8Type())
+
+    @classmethod
+    def Int1(cls, context=None):
+        if context is not None:
+            return Type(lib.LLVMInt1TypeInContext(context))
+        else:
+            return Type(lib.LLVMInt1Type())
+        
         
     def dump(self):
         lib.LLVMDumpType(self)
@@ -497,9 +505,13 @@ def register_library(library):
     library.LLVMShutdown.restype = None
 
     # Types
+    library.LLVMInt1TypeInContext.argtypes = [Context]
+    library.LLVMInt1TypeInContext.restype = c_object_p
     library.LLVMInt8TypeInContext.argtypes = [Context]
     library.LLVMInt8TypeInContext.restype = c_object_p
     
+    library.LLVMInt1Type.argtypes = []
+    library.LLVMInt1Type.restype = c_object_p
     library.LLVMInt8Type.argtypes = []
     library.LLVMInt8Type.restype = c_object_p
 
