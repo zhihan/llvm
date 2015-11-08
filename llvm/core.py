@@ -179,14 +179,14 @@ class Type(LLVMObject):
         return lib.LLVMPrintTypeToString(self)
 
     @classmethod
-    def Int8(cls, context=None):
+    def int8(cls, context=None):
         if context is not None:
             return Type(lib.LLVMInt8TypeInContext(context))
         else:
             return Type(lib.LLVMInt8Type())
 
     @classmethod
-    def Int1(cls, context=None):
+    def int1(cls, context=None):
         if context is not None:
             return Type(lib.LLVMInt1TypeInContext(context))
         else:
@@ -201,6 +201,13 @@ class Value(LLVMObject):
     def __init__(self, value):
         LLVMObject.__init__(self, value)
 
+    @classmethod
+    def null(self, ty):
+        return Value(lib.LLVMConstNull(ty))
+
+    def is_null(self):
+        return lib.LLVMIsNull(self)
+        
     @property
     def name(self):
         return lib.LLVMGetValueName(self)
@@ -583,6 +590,12 @@ def register_library(library):
     library.LLVMGetPreviousFunction.restype = c_object_p
 
     # Value declarations.
+    library.LLVMConstNull.argtypes = [Type]
+    library.LLVMConstNull.restype = c_object_p
+
+    library.LLVMIsNull.argtypes = [Value]
+    library.LLVMIsNull.restype = bool
+    
     library.LLVMGetValueName.argtypes = [Value]
     library.LLVMGetValueName.restype = c_char_p
 
