@@ -221,6 +221,9 @@ class Value(LLVMObject):
     def name(self):
         return lib.LLVMGetValueName(self)
 
+    def __str__(self):
+        return lib.LLVMPrintValueToString(self)
+    
     def dump(self):
         lib.LLVMDumpValue(self)
     
@@ -613,6 +616,9 @@ def register_library(library):
     
     library.LLVMGetValueName.argtypes = [Value]
     library.LLVMGetValueName.restype = c_char_p
+    
+    library.LLVMPrintValueToString.argtypes = [Value]
+    library.LLVMPrintValueToString.restype = c_char_p
 
     library.LLVMDumpValue.argtypes = [Value]
     library.LLVMDumpValue.restype = None
