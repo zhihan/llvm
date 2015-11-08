@@ -15,8 +15,10 @@ from . import enumerations
 
 from ctypes import POINTER
 from ctypes import byref
+from ctypes import c_bool
 from ctypes import c_char_p
 from ctypes import c_uint
+from ctypes import c_ulonglong
 
 __all__ = [
     "lib",
@@ -207,6 +209,13 @@ class Value(LLVMObject):
 
     def is_null(self):
         return lib.LLVMIsNull(self)
+
+    @classmethod
+    def const_int(self, ty, val, sign_extend):
+        return Value(lib.LLVMConstInt(ty, val, sign_extend))
+
+    def get_signext_value(self):
+        return lib.LLVMConstIntGetSExtValue(self)
         
     @property
     def name(self):
@@ -595,6 +604,12 @@ def register_library(library):
 
     library.LLVMIsNull.argtypes = [Value]
     library.LLVMIsNull.restype = bool
+
+    library.LLVMConstInt.argtypes = [Type, c_ulonglong, c_bool]
+    library.LLVMConstInt.restype = c_object_p
+
+    library.LLVMConstIntGetSExtValue.argtypes = [Value]
+    library.LLVMConstIntGetSExtValue.restype = long
     
     library.LLVMGetValueName.argtypes = [Value]
     library.LLVMGetValueName.restype = c_char_p

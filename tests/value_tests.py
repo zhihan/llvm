@@ -14,5 +14,11 @@ class ValueTest(unittest.TestCase):
 
         self.assertTrue(v.is_null())
 
+    def testConstInt8(self):
+        ty = Type.int8()
+        v = Value.const_int(ty, 3, True)
+
+        self.assertEquals(3L, v.get_signext_value())
+
 if __name__ == "__main__":
     unittest.main()
