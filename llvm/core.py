@@ -173,6 +173,7 @@ class MemoryBuffer(LLVMObject):
         return lib.LLVMGetBufferSize(self)
 
 class Type(LLVMObject):
+    """Represent a bype in LLVM."""
     def __init__(self, ty):
         LLVMObject.__init__(self, ty)
 
@@ -193,13 +194,13 @@ class Type(LLVMObject):
             return Type(lib.LLVMInt1TypeInContext(context))
         else:
             return Type(lib.LLVMInt1Type())
-        
-        
+
+
     def dump(self):
         lib.LLVMDumpType(self)
-            
+
 class Value(LLVMObject):
-    
+
     def __init__(self, value):
         LLVMObject.__init__(self, value)
 
@@ -216,23 +217,23 @@ class Value(LLVMObject):
 
     def get_signext_value(self):
         return lib.LLVMConstIntGetSExtValue(self)
-        
+
     @property
     def name(self):
         return lib.LLVMGetValueName(self)
 
     def __str__(self):
         return lib.LLVMPrintValueToString(self)
-    
+
     def dump(self):
         lib.LLVMDumpValue(self)
-    
+
     def get_operand(self, i):
         return Value(lib.LLVMGetOperand(self, i))
-    
+
     def set_operand(self, i, v):
         return lib.LLVMSetOperand(self, i, v)
-    
+
     def __len__(self):
         return lib.LLVMGetNumOperands(self)
 
@@ -277,10 +278,10 @@ class Module(LLVMObject):
                 self.function = self.module.last
             else:
                 self.function = self.module.first
-        
+
         def __iter__(self):
             return self
-        
+
         def next(self):
             if not isinstance(self.function, Function):
                 raise StopIteration("")
@@ -290,7 +291,7 @@ class Module(LLVMObject):
             else:
                 self.function = self.function.next
             return result
-    
+
     def __iter__(self):
         return Module.__function_iterator(self)
 
@@ -308,7 +309,7 @@ class Module(LLVMObject):
     def print_module_to_file(self, filename):
         out = c_char_p(None)
         # Result is inverted so 0 means everything was ok.
-        result = lib.LLVMPrintModuleToFile(self, filename, byref(out))        
+        result = lib.LLVMPrintModuleToFile(self, filename, byref(out))
         if result:
             raise RuntimeError("LLVM Error: %s" % out.value)
 
@@ -316,17 +317,17 @@ class Function(Value):
 
     def __init__(self, value):
         Value.__init__(self, value)
-    
+
     @property
     def next(self):
         f = lib.LLVMGetNextFunction(self)
         return f and Function(f)
-    
+
     @property
     def prev(self):
         f = lib.LLVMGetPreviousFunction(self)
         return f and Function(f)
-    
+
     @property
     def first(self):
         b = lib.LLVMGetFirstBasicBlock(self)
@@ -345,10 +346,10 @@ class Function(Value):
                 self.bb = function.last
             else:
                 self.bb = function.first
-        
+
         def __iter__(self):
             return self
-        
+
         def next(self):
             if not isinstance(self.bb, BasicBlock):
                 raise StopIteration("")
@@ -358,18 +359,18 @@ class Function(Value):
             else:
                 self.bb = self.bb.next
             return result
-    
+
     def __iter__(self):
         return Function.__bb_iterator(self)
 
     def __reversed__(self):
         return Function.__bb_iterator(self, reverse=True)
-    
+
     def __len__(self):
         return lib.LLVMCountBasicBlocks(self)
 
 class BasicBlock(LLVMObject):
-    
+
     def __init__(self, value):
         LLVMObject.__init__(self, value)
 
@@ -382,7 +383,7 @@ class BasicBlock(LLVMObject):
     def prev(self):
         b = lib.LLVMGetPreviousBasicBlock(self)
         return b and BasicBlock(b)
-    
+
     @property
     def first(self):
         i = lib.LLVMGetFirstInstruction(self)
@@ -395,7 +396,7 @@ class BasicBlock(LLVMObject):
 
     def __as_value(self):
         return Value(lib.LLVMBasicBlockAsValue(self))
-    
+
     @property
     def name(self):
         return lib.LLVMGetValueName(self.__as_value())
@@ -406,26 +407,26 @@ class BasicBlock(LLVMObject):
     def get_operand(self, i):
         return Value(lib.LLVMGetOperand(self.__as_value(),
                                         i))
-    
+
     def set_operand(self, i, v):
         return lib.LLVMSetOperand(self.__as_value(),
                                   i, v)
-    
+
     def __len__(self):
         return lib.LLVMGetNumOperands(self.__as_value())
 
     class __inst_iterator(object):
-        def __init__(self, bb, reverse=False):            
+        def __init__(self, bb, reverse=False):
             self.bb = bb
             self.reverse = reverse
             if self.reverse:
                 self.inst = self.bb.last
             else:
                 self.inst = self.bb.first
-        
+
         def __iter__(self):
             return self
-        
+
         def next(self):
             if not isinstance(self.inst, Instruction):
                 raise StopIteration("")
@@ -435,7 +436,7 @@ class BasicBlock(LLVMObject):
             else:
                 self.inst = self.inst.next
             return result
-    
+
     def __iter__(self):
         return BasicBlock.__inst_iterator(self)
 
@@ -528,7 +529,7 @@ def register_library(library):
     library.LLVMInt1TypeInContext.restype = c_object_p
     library.LLVMInt8TypeInContext.argtypes = [Context]
     library.LLVMInt8TypeInContext.restype = c_object_p
-    
+
     library.LLVMInt1Type.argtypes = []
     library.LLVMInt1Type.restype = c_object_p
     library.LLVMInt8Type.argtypes = []
@@ -613,10 +614,10 @@ def register_library(library):
 
     library.LLVMConstIntGetSExtValue.argtypes = [Value]
     library.LLVMConstIntGetSExtValue.restype = long
-    
+
     library.LLVMGetValueName.argtypes = [Value]
     library.LLVMGetValueName.restype = c_char_p
-    
+
     library.LLVMPrintValueToString.argtypes = [Value]
     library.LLVMPrintValueToString.restype = c_char_p
 
@@ -681,9 +682,9 @@ def register_enumerations():
         (RealPredicate, enumerations.RealPredicate),
         (LandingPadClauseTy, enumerations.LandingPadClauseTy),
     ]
+
     for enum_class, enum_spec in enums:
         for name, value in enum_spec:
-            print name, value
             enum_class.register(name, value)
     return enums
 
