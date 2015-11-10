@@ -223,6 +223,10 @@ class Value(LLVMObject):
     def name(self):
         return lib.LLVMGetValueName(self)
 
+    @property
+    def type(self):
+        return Type(lib.LLVMTypeOf(self))
+    
     def __str__(self):
         return lib.LLVMPrintValueToString(self)
 
@@ -249,6 +253,10 @@ class Module(LLVMObject):
         m = Module(lib.LLVMModuleCreateWithName(module_id))
         Context.GetGlobalContext().take_ownership(m)
         return m
+
+    @property
+    def context(self):
+        return Context(lib.LLVMGetModuleContext(self))
 
     @property
     def datalayout(self):
@@ -569,6 +577,9 @@ def register_library(library):
     library.LLVMModuleCreateWithName.argtypes = [c_char_p]
     library.LLVMModuleCreateWithName.restype = c_object_p
 
+    library.LLVMGetModuleContext.argtypes = [Module]
+    library.LLVMGetModuleContext.restype = c_object_p
+
     library.LLVMDisposeModule.argtypes = [Module]
     library.LLVMDisposeModule.restype = None
 
@@ -619,6 +630,9 @@ def register_library(library):
     library.LLVMGetValueName.argtypes = [Value]
     library.LLVMGetValueName.restype = c_char_p
 
+    library.LLVMTypeOf.argtypes = [Value]
+    library.LLVMTypeOf.restype = c_object_p
+    
     library.LLVMPrintValueToString.argtypes = [Value]
     library.LLVMPrintValueToString.restype = c_char_p
 

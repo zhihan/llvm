@@ -21,5 +21,6 @@ class ValueTest(unittest.TestCase):
         self.assertEquals(3L, v.get_signext_value())
         self.assertEquals('i8 3', str(v))
 
+
 if __name__ == "__main__":
     unittest.main()

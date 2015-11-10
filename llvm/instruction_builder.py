@@ -28,6 +28,9 @@ class Builder(LLVMObject):
     def sub(self, lhs, rhs, name):
         return Value(lib.LLVMBuildSub(self, lhs, rhs, name))
 
+    def load(self, pointer, name):
+        return Value(lib.LLVMBuildLoad(self, pointer, name))
+
         
 
 def register_library(library):
@@ -39,6 +42,12 @@ def register_library(library):
 
     library.LLVMBuildAdd.argtypes = [Builder, Value, Value, c_char_p]
     library.LLVMBuildAdd.restype = c_object_p
+
+    library.LLVMBuildSub.argtypes = [Builder, Value, Value, c_char_p]
+    library.LLVMBuildSub.restype = c_object_p
+
+    library.LLVMBuildLoad.argtypes = [Builder, Value, c_char_p]
+    library.LLVMBuildLoad.restype = c_object_p
 
     library.LLVMDisposeBuilder.argtypes = [Builder]
     library.LLVMDisposeBuilder.restype = None
