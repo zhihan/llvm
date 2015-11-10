@@ -13,7 +13,7 @@ lib = get_library()
 
 class Builder(LLVMObject):
     def __init__(self, obj):
-        LLVMObject.__init__(self, obj, disposer=lib.LLVMDisposeModule)
+        LLVMObject.__init__(self, obj, disposer=lib.LLVMDisposeBuilder)
 
     @classmethod
     def create(cls, context=None):
@@ -25,8 +25,10 @@ class Builder(LLVMObject):
     def add(self, lhs, rhs, name):
         return Value(lib.LLVMBuildAdd(self, lhs, rhs, name))
 
-    def __del__(self):
-        lib.LLVMDisposeBuilder(self)
+    def sub(self, lhs, rhs, name):
+        return Value(lib.LLVMBuildSub(self, lhs, rhs, name))
+
+        
 
 def register_library(library):
     library.LLVMCreateBuilder.argtypes = []
