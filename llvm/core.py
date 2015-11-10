@@ -33,6 +33,7 @@ __all__ = [
     "Context",
     "PassRegistry",
     "Type",
+    "shutdown_llvm",
 ]
 
 lib = get_library()
@@ -703,6 +704,9 @@ def initialize_llvm():
     lib.LLVMInitializeIPA(p)
     lib.LLVMInitializeCodeGen(p)
     lib.LLVMInitializeTarget(p)
+
+def shutdown_llvm():
+    lib.LLVMShutdown()
 
 register_library(lib)
 Enums = register_enumerations()
