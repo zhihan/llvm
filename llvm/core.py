@@ -20,6 +20,7 @@ from ctypes import c_char_p
 from ctypes import c_uint
 from ctypes import c_ulonglong
 from ctypes import c_size_t
+from ctypes import c_int
 from ctypes import cast
 
 __all__ = [
@@ -35,6 +36,7 @@ __all__ = [
     "Context",
     "PassRegistry",
     "Type",
+    "VerifierFailureActionTy",
     "shutdown_llvm",
 ]
 
@@ -148,6 +150,12 @@ class LandingPadClauseTy(LLVMEnumeration):
 
     def __init__(self, name, value):
         super(LandingPadClauseTy, self).__init__(name, value)
+
+class VerifierFailureActionTy(LLVMEnumeration):
+    _value_map = {}
+
+    def __init__(self, name, value):
+        super(VerifierFailureActionTy, self).__init__(name, value)
 
 class MemoryBuffer(LLVMObject):
     """Represents an opaque memory buffer."""
@@ -405,6 +413,20 @@ class Function(Value):
     def __len__(self):
         return lib.LLVMCountBasicBlocks(self)
 
+    def append_basic_block(self, name, context=None):
+        if context is None:
+            return BasicBlock(lib.LLVMAppendBasicBlock(self, name))
+        else:
+            return BasicBlock(
+                lib.LLVMAppendBasicBlockInContext(context, self, name))
+
+    def get_param(self, idx):
+        return Value(lib.LLVMGetParam(self, idx))
+
+    def verify(self, action=None):
+        return lib.LLVMVerifyFunction(self, action)
+
+
 class BasicBlock(LLVMObject):
 
     def __init__(self, value):
@@ -478,14 +500,6 @@ class BasicBlock(LLVMObject):
 
     def __reversed__(self):
         return BasicBlock.__inst_iterator(self, reverse=True)
-
-    @classmethod
-    def append(cls, fn, name, context=None):
-        if context is None:
-            return BasicBlock(lib.LLVMAppendBasicBlock(fn, name))
-        else:
-            return BasicBlock(
-                lib.LLVMAppendBasicBlockInContext(context, fn, name))
 
 
 class Instruction(Value):
@@ -730,6 +744,12 @@ def register_library(library):
     library.LLVMCountBasicBlocks.argtypes = [Function]
     library.LLVMCountBasicBlocks.restype = c_uint
 
+    library.LLVMGetParam.argtypes = [Function, c_uint]
+    library.LLVMGetParam.restype = c_object_p
+
+    library.LLVMVerifyFunction.argtypes = [Function, c_int]
+    library.LLVMVerifyFunction.restype = bool
+
     # Instruction Declarations.
     library.LLVMGetNextInstruction.argtypes = [Instruction]
     library.LLVMGetNextInstruction.restype = c_object_p
@@ -753,6 +773,7 @@ def register_enumerations():
         (IntPredicate, enumerations.IntPredicate),
         (RealPredicate, enumerations.RealPredicate),
         (LandingPadClauseTy, enumerations.LandingPadClauseTy),
+        (VerifierFailureActionTy, enumerations.VerifierFailureActionTy),
     ]
 
     for enum_class, enum_spec in enums:

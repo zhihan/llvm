@@ -28,6 +28,7 @@ __all__ = [
     'IntPredicate',
     'RealPredicate',
     'LandingPadClauseTy',
+    'VerifierFailureActionTy',
 ]
 
 Attributes = [
@@ -208,4 +209,10 @@ RealPredicate = [
 LandingPadClauseTy = [
     ('Catch', 0),
     ('Filter', 1),
+]
+
+VerifierFailureActionTy = [
+    ('AbortProcessAction', 0),
+    ('PrintMessageAction', 1),
+    ('ReturnStatusAction', 2),
 ]

@@ -5,6 +5,7 @@ from .common import get_library
 
 from .core import Context
 from .core import Value
+from .core import BasicBlock
 
 from ctypes import c_char_p
 
@@ -28,8 +29,17 @@ class Builder(LLVMObject):
     def sub(self, lhs, rhs, name):
         return Value(lib.LLVMBuildSub(self, lhs, rhs, name))
 
+    def mul(self, lhs, rhs, name):
+        return Value(lib.LLVMBuildMul(self, lhs, rhs, name))
+
     def load(self, pointer, name):
         return Value(lib.LLVMBuildLoad(self, pointer, name))
+
+    def ret(self, value):
+        return Value(lib.LLVMBuildRet(self, value))
+
+    def position_at_end(self, bb):
+        lib.LLVMPositionBuilderAtEnd(self, bb)
 
         
 
@@ -46,10 +56,19 @@ def register_library(library):
     library.LLVMBuildSub.argtypes = [Builder, Value, Value, c_char_p]
     library.LLVMBuildSub.restype = c_object_p
 
+    library.LLVMBuildMul.argtypes = [Builder, Value, Value, c_char_p]
+    library.LLVMBuildMul.restype = c_object_p
+
+    library.LLVMBuildRet.argtypes = [Builder, Value]
+    library.LLVMBuildRet.restype = c_object_p
+
     library.LLVMBuildLoad.argtypes = [Builder, Value, c_char_p]
     library.LLVMBuildLoad.restype = c_object_p
 
     library.LLVMDisposeBuilder.argtypes = [Builder]
     library.LLVMDisposeBuilder.restype = None
+
+    library.LLVMPositionBuilderAtEnd.argtypes = [Builder, BasicBlock]
+    library.LLVMPositionBuilderAtEnd.restype = None
     
 register_library(lib)
