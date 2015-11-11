@@ -345,6 +345,10 @@ class Module(LLVMObject):
         if result:
             raise RuntimeError("LLVM Error: %s" % out.value)
 
+    def add_function(self, name, fn_ty):
+        return Function(lib.LLVMAddFunction(self, name, fn_ty))
+        
+
 class Function(Value):
 
     def __init__(self, value):
@@ -655,6 +659,9 @@ def register_library(library):
 
     library.LLVMGetPreviousFunction.argtypes = [Function]
     library.LLVMGetPreviousFunction.restype = c_object_p
+
+    library.LLVMAddFunction.argtypes = [Module, c_char_p, Type]
+    library.LLVMAddFunction.restype = c_object_p
 
     # Value declarations.
     library.LLVMConstNull.argtypes = [Type]

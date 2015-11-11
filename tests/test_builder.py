@@ -48,5 +48,6 @@ class InstructionBuilderTest(unittest.TestCase):
         self.assertEqual('i8', c.type.name)
         self.assertEqual('tmp1', c.name)
 
+
 if __name__ == "__main__":
     unittest.main()

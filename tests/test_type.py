@@ -30,6 +30,8 @@ class TypeTest(unittest.TestCase):
         f = Type.function(ty, [ty], False)
 
         self.assertEqual('i8 (i8)', f.name)
+
+    
         
 if __name__ == '__main__':
     unittest.main()
