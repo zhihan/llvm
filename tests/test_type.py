@@ -25,6 +25,11 @@ class TypeTest(unittest.TestCase):
         self.assertEqual('i1', ty.name)
         ty.dump()
  
+    def testCreateFunction(self):
+        ty = Type.int8()
+        f = Type.function(ty, [ty], False)
 
+        self.assertEqual('i8 (i8)', f.name)
+        
 if __name__ == '__main__':
     unittest.main()

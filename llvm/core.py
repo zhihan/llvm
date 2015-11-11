@@ -19,6 +19,8 @@ from ctypes import c_bool
 from ctypes import c_char_p
 from ctypes import c_uint
 from ctypes import c_ulonglong
+from ctypes import c_size_t
+from ctypes import cast
 
 __all__ = [
     "lib",
@@ -149,8 +151,11 @@ class LandingPadClauseTy(LLVMEnumeration):
 
 class MemoryBuffer(LLVMObject):
     """Represents an opaque memory buffer."""
+    def __init__(self, memory):
+        LLVMObject.__init__(self, memory, disposer=lib.LLVMDisposeMemoryBuffer)
 
-    def __init__(self, filename=None):
+    @classmethod
+    def fromFile(cls, filename):
         """Create a new memory buffer.
 
         Currently, we support creating from the contents of a file at the
@@ -167,9 +172,18 @@ class MemoryBuffer(LLVMObject):
 
         if result:
             raise Exception("Could not create memory buffer: %s" % out.value)
+        return MemoryBuffer(memory)
 
-        LLVMObject.__init__(self, memory, disposer=lib.LLVMDisposeMemoryBuffer)
-
+    @classmethod
+    def fromString(cls, s):
+        memory = lib.LLVMCreateMemoryBufferWithMemoryRangeCopy(
+            s, len(s), "inputBuffer")
+        return MemoryBuffer(memory)
+        
+        
+    def __str__(self):
+        return lib.LLVMGetBufferStart(self)
+        
     def __len__(self):
         return lib.LLVMGetBufferSize(self)
 
@@ -195,6 +209,15 @@ class Type(LLVMObject):
             return Type(lib.LLVMInt1TypeInContext(context))
         else:
             return Type(lib.LLVMInt1Type())
+
+    @classmethod
+    def function(cls, ret, params, isVarArg):
+        count = len(params)
+        param_array = (c_object_p * count) ()
+        for i in xrange(count):
+            param_array[i] = params[i].from_param()
+        return Type(lib.LLVMFunctionType(
+            ret, param_array, count, isVarArg))
 
 
     def dump(self):
@@ -226,7 +249,7 @@ class Value(LLVMObject):
     @property
     def type(self):
         return Type(lib.LLVMTypeOf(self))
-    
+
     def __str__(self):
         return lib.LLVMPrintValueToString(self)
 
@@ -452,6 +475,14 @@ class BasicBlock(LLVMObject):
     def __reversed__(self):
         return BasicBlock.__inst_iterator(self, reverse=True)
 
+    @classmethod
+    def append(cls, fn, name, context=None):
+        if context is None:
+            return BasicBlock(lib.LLVMAppendBasicBlock(fn, name))
+        else:
+            return BasicBlock(
+                lib.LLVMAppendBasicBlockInContext(context, fn, name))
+
 
 class Instruction(Value):
 
@@ -550,6 +581,9 @@ def register_library(library):
     library.LLVMDumpType.argtype = [Type]
     library.LLVMDumpType.restype = None
 
+    library.LLVMFunctionType.argtype = [Type, POINTER(c_object_p), c_uint, c_bool]
+    library.LLVMFunctionType.restype = c_object_p
+
     # Pass Registry declarations.
     library.LLVMGetGlobalPassRegistry.argtypes = []
     library.LLVMGetGlobalPassRegistry.restype = c_object_p
@@ -570,6 +604,14 @@ def register_library(library):
     library.LLVMCreateMemoryBufferWithContentsOfFile.restype = bool
 
     library.LLVMGetBufferSize.argtypes = [MemoryBuffer]
+
+    library.LLVMGetBufferStart.argtypes = [MemoryBuffer]
+    library.LLVMGetBufferStart.restype = c_char_p
+
+    library.LLVMCreateMemoryBufferWithMemoryRangeCopy.argtypes = [c_char_p,
+                                                                  c_size_t,
+                                                                  c_char_p]
+    library.LLVMCreateMemoryBufferWithMemoryRangeCopy.restype = c_object_p
 
     library.LLVMDisposeMemoryBuffer.argtypes = [MemoryBuffer]
 
@@ -632,7 +674,7 @@ def register_library(library):
 
     library.LLVMTypeOf.argtypes = [Value]
     library.LLVMTypeOf.restype = c_object_p
-    
+
     library.LLVMPrintValueToString.argtypes = [Value]
     library.LLVMPrintValueToString.restype = c_char_p
 
@@ -658,6 +700,14 @@ def register_library(library):
     library.LLVMGetNextBasicBlock.argtypes = [BasicBlock]
     library.LLVMGetNextBasicBlock.restype = c_object_p
 
+    library.LLVMAppendBasicBlock.argtypes = [Function, c_char_p]
+    library.LLVMAppendBasicBlock.restype = c_object_p
+
+    library.LLVMAppendBasicBlockInContext.argtypes = [Context,
+                                                      Function,
+                                                      c_char_p]
+    library.LLVMAppendBasicBlockInContext.restype = c_object_p
+    
     library.LLVMGetPreviousBasicBlock.argtypes = [BasicBlock]
     library.LLVMGetPreviousBasicBlock.restype = c_object_p
 
