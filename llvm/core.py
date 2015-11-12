@@ -231,6 +231,9 @@ class Type(LLVMObject):
     def dump(self):
         lib.LLVMDumpType(self)
 
+    def get_context(self):
+        return Context(lib.LLVMGetTypeContext(self))
+
 class Value(LLVMObject):
 
     def __init__(self, value):
@@ -355,6 +358,12 @@ class Module(LLVMObject):
 
     def add_function(self, name, fn_ty):
         return Function(lib.LLVMAddFunction(self, name, fn_ty))
+
+    def get_function(self, name):
+        return Function(lib.LLVMGetNamedFunction(self, name))
+
+    def get_type(self, name):
+        return Type(lib.LLVMGetTypeByName(self, name))
         
 
 class Function(Value):
@@ -599,6 +608,9 @@ def register_library(library):
     library.LLVMDumpType.argtype = [Type]
     library.LLVMDumpType.restype = None
 
+    library.LLVMGetTypeContext.argtype = [Type]
+    library.LLVMGetTypeContext.restype = c_object_p
+
     library.LLVMFunctionType.argtype = [Type, POINTER(c_object_p), c_uint, c_bool]
     library.LLVMFunctionType.restype = c_object_p
 
@@ -676,6 +688,12 @@ def register_library(library):
 
     library.LLVMAddFunction.argtypes = [Module, c_char_p, Type]
     library.LLVMAddFunction.restype = c_object_p
+
+    library.LLVMGetNamedFunction.argtypes = [Module, c_char_p]
+    library.LLVMGetNamedFunction.restype = c_object_p
+
+    library.LLVMGetTypeByName.argtypes = [Module, c_char_p]
+    library.LLVMGetTypeByName.restype = c_object_p
 
     # Value declarations.
     library.LLVMConstNull.argtypes = [Type]
