@@ -6,6 +6,7 @@ from .common import get_library
 from .core import Context
 from .core import Value
 from .core import BasicBlock
+from .core import Type
 
 from ctypes import c_char_p
 
@@ -13,6 +14,7 @@ __all__ = ['Builder']
 lib = get_library()
 
 class Builder(LLVMObject):
+    """A Wrapper class for the instruction builder."""
     def __init__(self, obj):
         LLVMObject.__init__(self, obj, disposer=lib.LLVMDisposeBuilder)
 
@@ -38,10 +40,17 @@ class Builder(LLVMObject):
     def ret(self, value):
         return Value(lib.LLVMBuildRet(self, value))
 
+    def alloca(self, ty, name):
+        return Value(lib.LLVMBuildAlloca(self, ty, name))
+
+    def store(self, val, ptr):
+        return Value(lib.LLVMBuildStore(self, val, ptr))
+
+    def load(self, val, name):
+        return Value(lib.LLVMBuildLoad(self, val, name))
+        
     def position_at_end(self, bb):
         lib.LLVMPositionBuilderAtEnd(self, bb)
-
-        
 
 def register_library(library):
     library.LLVMCreateBuilder.argtypes = []
@@ -70,5 +79,14 @@ def register_library(library):
 
     library.LLVMPositionBuilderAtEnd.argtypes = [Builder, BasicBlock]
     library.LLVMPositionBuilderAtEnd.restype = None
-    
+
+    library.LLVMBuildAlloca.argtypes = [Builder, Type, c_char_p]
+    library.LLVMBuildAlloca.restype = c_object_p
+
+    library.LLVMBuildStore.argtypes = [Builder, Value, Value]
+    library.LLVMBuildStore.restype = c_object_p
+
+    library.LLVMBuildLoad.argtypes = [Builder, Value, c_char_p]
+    library.LLVMBuildLoad.restype = c_object_p
+                
 register_library(lib)

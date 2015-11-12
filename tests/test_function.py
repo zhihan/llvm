@@ -21,6 +21,25 @@ def create_timestwo_module():
     y = bldr.mul(x, two, 'res')
     bldr.ret(y)    
     return (mod, f)
+
+def create_timestwo_module_with_local():
+    mod = Module.CreateWithName('module')
+    ty = Type.int8(context=mod.context)
+    ft = Type.function(ty, [ty], False)
+    f = mod.add_function('timestwo', ft)
+    bb = f.append_basic_block('body')
+    bldr = Builder.create(mod.context)
+    bldr.position_at_end(bb)
+
+    two_ptr = bldr.alloca(ty, "two_ptr")
+    bldr.store(Value.const_int(ty, 2L, True), two_ptr)
+    two = bldr.load(two_ptr, "two")
+
+    x = f.get_param(0)
+    y = bldr.mul(x, two, 'res')
+    bldr.ret(y)    
+    return (mod, f)
+    
     
 class ModuleTest(unittest.TestCase):
     def setUp(self):
