@@ -821,4 +821,4 @@ def shutdown_llvm():
 register_library(lib)
 Enums = register_enumerations()
 initialize_llvm()
-print "Local package llvm is used!"
+# print "Local package llvm is used!"

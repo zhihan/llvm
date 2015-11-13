@@ -4,9 +4,9 @@ from llvm.core import Type
 from llvm.execution import GenericValue
 from llvm.execution import ExecutionEngine
 
-from test_function import create_timestwo_module
-from test_function import create_timestwo_module_with_local
-from test_function import create_timestwo_module_with_global
+from testing import create_timestwo_module
+from testing import create_timestwo_module_with_local
+from testing import create_timestwo_module_with_global
 
 class ExecutionTest(unittest.TestCase):
     def setUp(self):
