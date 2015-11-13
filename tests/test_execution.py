@@ -6,6 +6,7 @@ from llvm.execution import ExecutionEngine
 
 from test_function import create_timestwo_module
 from test_function import create_timestwo_module_with_local
+from test_function import create_timestwo_module_with_global
 
 class ExecutionTest(unittest.TestCase):
     def setUp(self):
@@ -34,6 +35,14 @@ class ExecutionTest(unittest.TestCase):
         y = ee.run_function(f, [x])
         self.assertEquals(6L, y.to_int(True))
         
+    def testTimesTwoWithGlobal(self):
+        mod, _ = create_timestwo_module_with_global()
+        ee = ExecutionEngine.create_interpreter(mod)
+        ty = Type.int8(context=mod.context)
+        f = mod.get_function('timestwo')
+        x = GenericValue.of_int(ty, 3L, True)
+        y = ee.run_function(f, [x])
+        self.assertEquals(6L, y.to_int(True))
 
 if __name__ == '__main__':
     unittest.main()
