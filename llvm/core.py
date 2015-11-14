@@ -21,6 +21,7 @@ from ctypes import c_uint
 from ctypes import c_ulonglong
 from ctypes import c_size_t
 from ctypes import c_int
+from ctypes import c_double
 from ctypes import cast
 
 __all__ = [
@@ -219,6 +220,13 @@ class Type(LLVMObject):
             return Type(lib.LLVMInt1Type())
 
     @classmethod
+    def double(cls, context=None):
+        if context is not None:
+            return Type(lib.LLVMDoubleTypeInContext(context))
+        else:
+            return Type(lib.LLVMDoubleType())
+
+    @classmethod
     def function(cls, ret, params, isVarArg):
         count = len(params)
         param_array = (c_object_p * count) ()
@@ -253,6 +261,15 @@ class Value(LLVMObject):
     def get_signext_value(self):
         return lib.LLVMConstIntGetSExtValue(self)
 
+    @classmethod
+    def const_real(self, ty, val):
+        return Value(lib.LLVMConstReal(ty, val))
+
+    def get_double_value(self):
+        precision_lost = c_bool()
+        res = lib.LLVMConstRealGetDouble(self, byref(precision_lost))
+        return (res, precision_lost)
+        
     @property
     def name(self):
         return lib.LLVMGetValueName(self)
@@ -596,11 +613,16 @@ def register_library(library):
     library.LLVMInt1TypeInContext.restype = c_object_p
     library.LLVMInt8TypeInContext.argtypes = [Context]
     library.LLVMInt8TypeInContext.restype = c_object_p
+    library.LLVMDoubleTypeInContext.argtypes = [Context]
+    library.LLVMDoubleTypeInContext.restype = c_object_p
 
+    
     library.LLVMInt1Type.argtypes = []
     library.LLVMInt1Type.restype = c_object_p
     library.LLVMInt8Type.argtypes = []
     library.LLVMInt8Type.restype = c_object_p
+    library.LLVMDoubleType.argtypes = []
+    library.LLVMDoubleType.restype = c_object_p
 
     library.LLVMPrintTypeToString.argtypes = [Type]
     library.LLVMPrintTypeToString.restype = c_char_p
@@ -710,6 +732,12 @@ def register_library(library):
 
     library.LLVMGetValueName.argtypes = [Value]
     library.LLVMGetValueName.restype = c_char_p
+
+    library.LLVMConstReal.argtypes = [Type, c_double]
+    library.LLVMConstReal.restype = c_object_p
+
+    library.LLVMConstRealGetDouble.argtypes = [Value, POINTER(c_bool)]
+    library.LLVMConstRealGetDouble.restype = c_double
 
     library.LLVMTypeOf.argtypes = [Value]
     library.LLVMTypeOf.restype = c_object_p

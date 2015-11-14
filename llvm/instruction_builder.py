@@ -29,7 +29,7 @@ class Builder(LLVMObject):
         """Add"""
         return Value(lib.LLVMBuildAdd(self, lhs, rhs, name))
 
-    def fadd(self, lhd, rhs, name):
+    def fadd(self, lhs, rhs, name):
         """Add (floating point)"""
         return Value(lib.LLVMBuildFAdd(self, lhs, rhs, name))
 
