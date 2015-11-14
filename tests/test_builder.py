@@ -61,6 +61,18 @@ class InstructionBuilderTest(unittest.TestCase):
         self.assertTrue(x - 2.0 < 0.01 and
                         2.0 - x > -0.01)
 
+    def testFAdd_float(self):
+        ty = Type.float()
+        a = Value.const_real(ty, 1.0)
+        b = Value.const_real(ty, 1.0)
+        bldr = Builder.create()
+        c = bldr.fadd(a, b, "tmp1")
+
+        x, l = c.get_double_value()
+        print x
+        print l
+        self.assertTrue(x - 2.0 < 0.01 and
+                        2.0 - x > -0.01)
         
         
 if __name__ == "__main__":

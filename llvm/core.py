@@ -227,6 +227,13 @@ class Type(LLVMObject):
             return Type(lib.LLVMDoubleType())
 
     @classmethod
+    def float(cls, context=None):
+        if context is not None:
+            return Type(lib.LLVMFloatTypeInContext(context))
+        else:
+            return Type(lib.LLVMFloatType())
+        
+    @classmethod
     def function(cls, ret, params, isVarArg):
         count = len(params)
         param_array = (c_object_p * count) ()
@@ -615,6 +622,8 @@ def register_library(library):
     library.LLVMInt8TypeInContext.restype = c_object_p
     library.LLVMDoubleTypeInContext.argtypes = [Context]
     library.LLVMDoubleTypeInContext.restype = c_object_p
+    library.LLVMFloatTypeInContext.argtypes = [Context]
+    library.LLVMFloatTypeInContext.restype = c_object_p
 
     
     library.LLVMInt1Type.argtypes = []
@@ -623,6 +632,8 @@ def register_library(library):
     library.LLVMInt8Type.restype = c_object_p
     library.LLVMDoubleType.argtypes = []
     library.LLVMDoubleType.restype = c_object_p
+    library.LLVMFloatType.argtypes = []
+    library.LLVMFloatType.restype = c_object_p
 
     library.LLVMPrintTypeToString.argtypes = [Type]
     library.LLVMPrintTypeToString.restype = c_char_p
