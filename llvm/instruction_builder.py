@@ -26,21 +26,31 @@ class Builder(LLVMObject):
             return Builder(lib.LLVMCreateBuilderInContext(context))
 
     def add(self, lhs, rhs, name):
+        """Add"""
         return Value(lib.LLVMBuildAdd(self, lhs, rhs, name))
 
+    def fadd(self, lhd, rhs, name):
+        """Add (floating point)"""
+        return Value(lib.LLVMBuildFAdd(self, lhs, rhs, name))
+
     def sub(self, lhs, rhs, name):
+        """Subtract"""
         return Value(lib.LLVMBuildSub(self, lhs, rhs, name))
 
     def mul(self, lhs, rhs, name):
+        """Multiply"""
         return Value(lib.LLVMBuildMul(self, lhs, rhs, name))
 
     def load(self, pointer, name):
+        """Load the content of a pointer"""
         return Value(lib.LLVMBuildLoad(self, pointer, name))
 
     def ret(self, value):
+        """Return"""
         return Value(lib.LLVMBuildRet(self, value))
 
     def alloca(self, ty, name):
+        """Alloca"""
         return Value(lib.LLVMBuildAlloca(self, ty, name))
 
     def store(self, val, ptr):
@@ -62,6 +72,9 @@ def register_library(library):
     library.LLVMBuildAdd.argtypes = [Builder, Value, Value, c_char_p]
     library.LLVMBuildAdd.restype = c_object_p
 
+    library.LLVMBuildFAdd.argtypes = [Builder, Value, Value, c_char_p]
+    library.LLVMBuildFAdd.restype = c_object_p
+    
     library.LLVMBuildSub.argtypes = [Builder, Value, Value, c_char_p]
     library.LLVMBuildSub.restype = c_object_p
 
