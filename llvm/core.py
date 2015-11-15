@@ -255,22 +255,25 @@ class Value(LLVMObject):
         LLVMObject.__init__(self, value)
 
     @classmethod
-    def null(self, ty):
+    def null(cls, ty):
         return Value(lib.LLVMConstNull(ty))
 
     def is_null(self):
         return lib.LLVMIsNull(self)
 
     @classmethod
-    def const_int(self, ty, val, sign_extend):
+    def const_int(cls, ty, val, sign_extend):
         return Value(lib.LLVMConstInt(ty, val, sign_extend))
 
     def get_signext_value(self):
         return lib.LLVMConstIntGetSExtValue(self)
 
     @classmethod
-    def const_real(self, ty, val):
-        return Value(lib.LLVMConstReal(ty, val))
+    def const_real(cls, ty, val):
+        if isinstance(val, basestring):
+            return Value(lib.LLVMConstRealOfString(ty, val))
+        else:
+            return Value(lib.LLVMConstReal(ty, val))
 
     def get_double_value(self):
         precision_lost = c_bool()
@@ -752,6 +755,9 @@ def register_library(library):
 
     library.LLVMConstReal.argtypes = [Type, c_double]
     library.LLVMConstReal.restype = c_object_p
+
+    library.LLVMConstRealOfString.argtypes = [Type, c_char_p]
+    library.LLVMConstRealOfString.restype = c_object_p
 
     library.LLVMConstRealGetDouble.argtypes = [Value, POINTER(c_bool)]
     library.LLVMConstRealGetDouble.restype = c_double

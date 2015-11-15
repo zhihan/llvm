@@ -56,8 +56,6 @@ class InstructionBuilderTest(unittest.TestCase):
         c = bldr.fadd(a, b, "tmp1")
 
         x, l = c.get_double_value()
-        print x
-        print l
         self.assertTrue(x - 2.0 < 0.01 and
                         2.0 - x > -0.01)
 
@@ -69,11 +67,19 @@ class InstructionBuilderTest(unittest.TestCase):
         c = bldr.fadd(a, b, "tmp1")
 
         x, l = c.get_double_value()
-        print x
-        print l
         self.assertTrue(x - 2.0 < 0.01 and
                         2.0 - x > -0.01)
-        
+        self.assertFalse(l)
+
+    def testValueFromString(self):
+        ty = Type.double()
+        a = Value.const_real(ty, 1.0)
+        b = Value.const_real(ty, "1.0")
+
+        x, _ = a.get_double_value()
+        y, _ = b.get_double_value()
+        self.assertEquals(x, y)
+    
         
 if __name__ == "__main__":
     unittest.main()
