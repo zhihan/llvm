@@ -38,6 +38,7 @@ __all__ = [
     "PassRegistry",
     "Type",
     "VerifierFailureActionTy",
+    "IntPredicate",
     "shutdown_llvm",
 ]
 
@@ -158,6 +159,7 @@ class VerifierFailureActionTy(LLVMEnumeration):
     def __init__(self, name, value):
         super(VerifierFailureActionTy, self).__init__(name, value)
 
+        
 class MemoryBuffer(LLVMObject):
     """Represents an opaque memory buffer."""
     def __init__(self, memory):
@@ -188,11 +190,11 @@ class MemoryBuffer(LLVMObject):
         memory = lib.LLVMCreateMemoryBufferWithMemoryRangeCopy(
             s, len(s), "inputBuffer")
         return MemoryBuffer(memory)
-        
-        
+
+
     def __str__(self):
         return lib.LLVMGetBufferStart(self)
-        
+
     def __len__(self):
         return lib.LLVMGetBufferSize(self)
 
@@ -232,7 +234,7 @@ class Type(LLVMObject):
             return Type(lib.LLVMFloatTypeInContext(context))
         else:
             return Type(lib.LLVMFloatType())
-        
+
     @classmethod
     def function(cls, ret, params, isVarArg):
         count = len(params)
@@ -268,6 +270,9 @@ class Value(LLVMObject):
     def get_signext_value(self):
         return lib.LLVMConstIntGetSExtValue(self)
 
+    def get_zeroext_value(self):
+        return lib.LLVMConstIntGetZExtValue(self)
+
     @classmethod
     def const_real(cls, ty, val):
         if isinstance(val, basestring):
@@ -279,7 +284,7 @@ class Value(LLVMObject):
         precision_lost = c_bool()
         res = lib.LLVMConstRealGetDouble(self, byref(precision_lost))
         return (res, precision_lost)
-        
+
     @property
     def name(self):
         return lib.LLVMGetValueName(self)
@@ -391,7 +396,7 @@ class Module(LLVMObject):
 
     def get_type(self, name):
         return Type(lib.LLVMGetTypeByName(self, name))
-        
+
 
 class Function(Value):
 
@@ -631,7 +636,7 @@ def register_library(library):
     library.LLVMFloatTypeInContext.argtypes = [Context]
     library.LLVMFloatTypeInContext.restype = c_object_p
 
-    
+
     library.LLVMInt1Type.argtypes = []
     library.LLVMInt1Type.restype = c_object_p
 
@@ -640,7 +645,7 @@ def register_library(library):
 
     library.LLVMDoubleType.argtypes = []
     library.LLVMDoubleType.restype = c_object_p
-    
+
     library.LLVMFloatType.argtypes = []
     library.LLVMFloatType.restype = c_object_p
 
@@ -750,6 +755,9 @@ def register_library(library):
     library.LLVMConstIntGetSExtValue.argtypes = [Value]
     library.LLVMConstIntGetSExtValue.restype = long
 
+    library.LLVMConstIntGetZExtValue.argtypes = [Value]
+    library.LLVMConstIntGetZExtValue.restype = long
+    
     library.LLVMGetValueName.argtypes = [Value]
     library.LLVMGetValueName.restype = c_char_p
 
@@ -797,7 +805,7 @@ def register_library(library):
                                                       Function,
                                                       c_char_p]
     library.LLVMAppendBasicBlockInContext.restype = c_object_p
-    
+
     library.LLVMGetPreviousBasicBlock.argtypes = [BasicBlock]
     library.LLVMGetPreviousBasicBlock.restype = c_object_p
 

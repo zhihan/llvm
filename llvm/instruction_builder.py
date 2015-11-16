@@ -7,8 +7,10 @@ from .core import Context
 from .core import Value
 from .core import BasicBlock
 from .core import Type
+from .core import IntPredicate
 
 from ctypes import c_char_p
+from ctypes import c_int
 
 __all__ = ['Builder']
 lib = get_library()
@@ -58,7 +60,10 @@ class Builder(LLVMObject):
 
     def load(self, val, name):
         return Value(lib.LLVMBuildLoad(self, val, name))
-        
+
+    def int_signed_lt(self, lhs, rhs, name):
+        return Value(lib.LLVMBuildICmp(self, IntPredicate.SLT.value, lhs, rhs, name))
+
     def position_at_end(self, bb):
         lib.LLVMPositionBuilderAtEnd(self, bb)
 
@@ -81,11 +86,11 @@ def register_library(library):
     library.LLVMBuildMul.argtypes = [Builder, Value, Value, c_char_p]
     library.LLVMBuildMul.restype = c_object_p
 
+    library.LLVMBuildICmp.argtypes = [Builder, c_int, Value, Value, c_char_p]
+    library.LLVMBuildICmp.restype = c_object_p
+    
     library.LLVMBuildRet.argtypes = [Builder, Value]
     library.LLVMBuildRet.restype = c_object_p
-
-    library.LLVMBuildLoad.argtypes = [Builder, Value, c_char_p]
-    library.LLVMBuildLoad.restype = c_object_p
 
     library.LLVMDisposeBuilder.argtypes = [Builder]
     library.LLVMDisposeBuilder.restype = None

@@ -79,7 +79,21 @@ class InstructionBuilderTest(unittest.TestCase):
         x, _ = a.get_double_value()
         y, _ = b.get_double_value()
         self.assertEquals(x, y)
-    
+
+    def testIntSLT(self):
+        ty = Type.int8()
+        a = Value.const_int(ty, 1L, True)
+        b = Value.const_int(ty, 2L, True)
+        bldr = Builder.create()
+        
+        c = bldr.int_signed_lt(a, b, "tmp1")
+        self.assertEqual(1L, c.get_zeroext_value())
+
+        d = bldr.int_signed_lt(b, a, "tmp2")
+        self.assertEqual(0L, d.get_zeroext_value())
+        
+        e = bldr.int_signed_lt(a, a, "tmp3")
+        self.assertEqual(0L, e.get_zeroext_value())
         
 if __name__ == "__main__":
     unittest.main()

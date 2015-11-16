@@ -57,3 +57,21 @@ def create_timestwo_module_with_global():
     y = bldr.mul(x, two, 'res')
     bldr.ret(y)    
     return (mod, f)
+
+def create_lessthanzero_module():
+    mod = Module.CreateWithName('module')
+
+    ty = Type.int8(context=mod.context)
+    bool_t = Type.int1(context=mod.context)
+    ft = Type.function(bool_t, [ty], False)
+    
+    f = mod.add_function('lessthanzero', ft)
+    bb = f.append_basic_block('body')
+    bldr = Builder.create(mod.context)
+    bldr.position_at_end(bb)
+    x = f.get_param(0)
+    zero = Value.const_int(ty, 0L, True)
+    y = bldr.int_signed_lt(x, zero, 'res')
+    bldr.ret(zero)    
+    return (mod, f)
+    
