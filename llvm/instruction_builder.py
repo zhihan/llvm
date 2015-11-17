@@ -8,6 +8,7 @@ from .core import Value
 from .core import BasicBlock
 from .core import Type
 from .core import IntPredicate
+from .core import PhiNode
 
 from ctypes import c_char_p
 from ctypes import c_int
@@ -61,9 +62,21 @@ class Builder(LLVMObject):
     def load(self, val, name):
         return Value(lib.LLVMBuildLoad(self, val, name))
 
+    def branch(self, dest):
+        return Value(lib.LLVMBuildBr(self, dest))
+
+    def conditional_branch(self, cond, true_branch, false_branch):
+        return Value(lib.LLVMBuildCondBr(self, cond, true_branch, false_branch))
+
     def int_signed_lt(self, lhs, rhs, name):
         return Value(lib.LLVMBuildICmp(self, IntPredicate.SLT.value, lhs, rhs, name))
 
+    def neg(self, val, name):
+        return Value(lib.LLVMBuildNeg(self, val, name))
+
+    def phi(self, ty, name):
+        return PhiNode(lib.LLVMBuildPhi(self, ty, name))
+    
     def position_at_end(self, bb):
         lib.LLVMPositionBuilderAtEnd(self, bb)
 
@@ -95,6 +108,18 @@ def register_library(library):
     library.LLVMDisposeBuilder.argtypes = [Builder]
     library.LLVMDisposeBuilder.restype = None
 
+    library.LLVMBuildBr.argtypes = [Builder, BasicBlock]
+    library.LLVMBuildBr.restype = c_object_p
+                     
+    library.LLVMBuildCondBr.argtypes = [Builder, Value, BasicBlock, BasicBlock]
+    library.LLVMBuildCondBr.restype = c_object_p
+
+    library.LLVMBuildNeg.argtypes = [Builder, Value, c_char_p]
+    library.LLVMBuildNeg.restype = c_object_p
+
+    library.LLVMBuildPhi.argtypes = [Builder, Type, c_char_p]
+    library.LLVMBuildPhi.restype = c_object_p
+    
     library.LLVMPositionBuilderAtEnd.argtypes = [Builder, BasicBlock]
     library.LLVMPositionBuilderAtEnd.restype = None
 

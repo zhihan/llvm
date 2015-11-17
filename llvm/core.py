@@ -466,8 +466,7 @@ class Function(Value):
 
     def verify(self, action=None):
         return lib.LLVMVerifyFunction(self, action)
-
-
+    
 class BasicBlock(LLVMObject):
 
     def __init__(self, value):
@@ -562,6 +561,20 @@ class Instruction(Value):
     def opcode(self):
         return OpCode.from_value(lib.LLVMGetInstructionOpcode(self))
 
+class PhiNode(Value):
+    def __init__(self, ptr):
+        Value.__init__(self, ptr)
+
+    def add_incoming(self, vals, blocks):
+        count = len(vals)
+        val_array = (c_object_p * count)()
+        block_array = (c_object_p * count)()
+        for i in xrange(count):
+            val_array[i] = vals[i].from_param()
+            block_array[i] = blocks[i].from_param()
+        lib.LLVMAddIncoming(self, val_array, block_array, count)
+
+    
 class Context(LLVMObject):
 
     def __init__(self, context=None):
@@ -664,6 +677,12 @@ def register_library(library):
     # Pass Registry declarations.
     library.LLVMGetGlobalPassRegistry.argtypes = []
     library.LLVMGetGlobalPassRegistry.restype = c_object_p
+
+    library.LLVMAddIncoming.argtypes = [PhiNode,
+                                        POINTER(c_object_p),
+                                        POINTER(c_object_p),
+                                        c_int]
+    library.LLVMAddIncoming.restype = None
 
     # Context declarations.
     library.LLVMContextCreate.argtypes = []

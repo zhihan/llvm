@@ -72,6 +72,40 @@ def create_lessthanzero_module():
     x = f.get_param(0)
     zero = Value.const_int(ty, 0L, True)
     y = bldr.int_signed_lt(x, zero, 'res')
-    bldr.ret(zero)    
+    bldr.ret(y)    
     return (mod, f)
     
+
+def create_abs_module():
+    mod = Module.CreateWithName('module')
+
+    ty = Type.int8(context=mod.context)
+    ft = Type.function(ty, [ty], False)
+    
+    f = mod.add_function('abs', ft)
+    bb1 = f.append_basic_block('body')
+    bbt = f.append_basic_block('true')
+    bbf = f.append_basic_block('false')
+    bbm = f.append_basic_block('merge')
+
+    bldr = Builder.create(mod.context)
+    bldr.position_at_end(bb1)
+    x = f.get_param(0)
+    zero = Value.const_int(ty, 0L, True)
+    c = bldr.int_signed_lt(x, zero, 'comp')
+    bldr.conditional_branch(c, bbt, bbf)
+
+    # True branch
+    bldr.position_at_end(bbt)
+    y_t = bldr.neg(x, 'neg_x')
+    bldr.branch(bbm)
+    
+    # False branch
+    bldr.position_at_end(bbf)
+    bldr.branch(bbm)
+    
+    bldr.position_at_end(bbm)
+    y = bldr.phi(ty, 'y')
+    y.add_incoming([y_t, x], [bbt, bbf])
+    bldr.ret(y)
+    return (mod, f)
