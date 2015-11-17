@@ -1,3 +1,4 @@
+"""Test module to generate simple LLVM modules."""
 from llvm.core import Module
 from llvm.core import Type
 from llvm.core import Function

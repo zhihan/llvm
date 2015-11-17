@@ -4,6 +4,7 @@ from ctypes import byref
 from ctypes import c_char_p
 from ctypes import c_uint
 from ctypes import POINTER
+from ctypes import c_double
 
 from .common import LLVMObject
 from .common import c_object_p
@@ -26,7 +27,14 @@ class GenericValue(LLVMObject):
 
     def to_int(self, signed):
         return lib.LLVMGenericValueToInt(self, signed)
-        
+
+    @staticmethod
+    def of_float(ty, val):
+        return GenericValue(lib.LLVMCreateGenericValueOfFloat(ty, val))
+
+    def to_float(self, ty):
+        return lib.LLVMGenericValueToFloat(ty, self)
+    
 class ExecutionEngine(LLVMObject):
     def __init__(self, ptr):
         LLVMObject.__init__(self, ptr, ownable=True,
@@ -56,6 +64,12 @@ def register_library(library):
 
     library.LLVMGenericValueToInt.argtypes = [GenericValue, c_bool]
     library.LLVMGenericValueToInt.restype = c_ulonglong
+
+    library.LLVMCreateGenericValueOfFloat.argtypes = [Type, c_double]
+    library.LLVMCreateGenericValueOfFloat.restype = c_object_p
+
+    library.LLVMGenericValueToFloat.argtypes = [Type, GenericValue]
+    library.LLVMGenericValueToFloat.restype = c_double
 
     library.LLVMRunFunction.argtypes = [ExecutionEngine, Value, c_uint, POINTER(c_object_p)]
     library.LLVMRunFunction.restype = c_object_p

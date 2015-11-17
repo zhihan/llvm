@@ -15,13 +15,20 @@ class ExecutionTest(unittest.TestCase):
     def setUp(self):
         pass
 
-    def testCreateGenericValue(self):
+    def testCreateGenericIntValue(self):
         ty = Type.int8()
         gv = GenericValue.of_int(ty, 4L, True)
         self.assertEquals(4L, gv.to_int(True))
 
         gv = GenericValue.of_int(ty, 128 + 4, False)
         self.assertEquals(132, gv.to_int(False))
+
+    def testCreateGenericDouble(self):
+        ty = Type.double()
+        gv = GenericValue.of_float(ty, 3.5)
+        x = gv.to_float(ty)
+        self.assertTrue(x - 3.5 < 0.001 and
+                        3.5 - x < 0.001)
         
     def testTimesTwo(self):
         mod, _ = create_timestwo_module()
