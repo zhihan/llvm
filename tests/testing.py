@@ -109,3 +109,38 @@ def create_abs_module():
     y.add_incoming([y_t, x], [bbt, bbf])
     bldr.ret(y)
     return (mod, f)
+
+def create_cumsum_module():
+    mod = Module.CreateWithName('module')
+
+    ty = Type.int8(context=mod.context)
+    ft = Type.function(ty, [ty], False)
+    
+    f = mod.add_function('cumsum', ft)
+    bb1 = f.append_basic_block('body')
+    bb_hdr = f.append_basic_block('hdr')
+    bb_loop = f.append_basic_block('loop')
+    bb_exit = f.append_basic_block('exit')
+
+    bldr = Builder.create(mod.context)
+    bldr.position_at_end(bb1)
+    bldr.branch(bb_hdr)
+
+    bldr.position_at_end(bb_hdr)
+    i = bldr.phi(ty, 'i')
+    s = bldr.phi(ty, 's')
+    zero = Value.const_int(ty, 0L, True)
+    c = bldr.int_signed_lt(zero, i, 'comp')
+    bldr.conditional_branch(c, bb_loop, bb_exit)
+
+    bldr.position_at_end(bb_loop)
+    s1 = bldr.add(s, i, 's1')
+    i1 = bldr.sub(i, Value.const_int(ty, 1L, True), 'i1')
+    bldr.branch(bb_hdr)
+
+    i.add_incoming([f.get_param(0), i1], [bb1, bb_loop])
+    s.add_incoming([Value.const_int(ty, 0L, True), s1], [bb1, bb_loop])
+    
+    bldr.position_at_end(bb_exit)
+    bldr.ret(s)
+    return (mod, f)

@@ -9,6 +9,7 @@ from testing import create_timestwo_module_with_local
 from testing import create_timestwo_module_with_global
 from testing import create_lessthanzero_module
 from testing import create_abs_module
+from testing import create_cumsum_module
 
 class ExecutionTest(unittest.TestCase):
     def setUp(self):
@@ -86,6 +87,14 @@ class ExecutionTest(unittest.TestCase):
         y = ee.run_function(f, [x])
         self.assertEquals(3L, y.to_int(True) & 255L)
 
+    def testCumsum(self):
+        mod, _ = create_cumsum_module()
+        ee = ExecutionEngine.create_interpreter(mod)
+        ty = Type.int8(context=mod.context)
+        f = mod.get_function('cumsum')
+        x = GenericValue.of_int(ty, 10L, True)
+        y = ee.run_function(f, [x])
+        self.assertEquals(55L, y.to_int(True))
 
 if __name__ == '__main__':
     unittest.main()
