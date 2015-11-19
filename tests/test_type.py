@@ -36,6 +36,9 @@ class TypeTest(unittest.TestCase):
         p = Type.pointer(ty)
     
         self.assertEqual('i8*', p.name)
+
+        t = p.element_type()
+        self.assertEqual('i8', t.name)
         
 if __name__ == '__main__':
     unittest.main()
