@@ -17,15 +17,18 @@ from .core import Value
 lib = get_library()
 
 class GenericValue(LLVMObject):
+    """Wrapper of LLVM generic values."""
     def __init__(self, ptr):
         LLVMObject.__init__(self, ptr, ownable=True,
                             disposer=lib.LLVMDisposeGenericValue)
 
     @staticmethod
     def of_int(ty, n, signed):
+        """Create a generic value from an integer."""
         return GenericValue(lib.LLVMCreateGenericValueOfInt(ty, n, signed))
 
     def to_int(self, signed):
+        """Return the int stored in the generic value."""
         return lib.LLVMGenericValueToInt(self, signed)
 
     @staticmethod

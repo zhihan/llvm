@@ -235,6 +235,10 @@ class Type(LLVMObject):
         else:
             return Type(lib.LLVMFloatType())
 
+    @staticmethod
+    def pointer(ty, address_space=0):
+        return Type(lib.LLVMPointerType(ty, address_space))
+
     @classmethod
     def function(cls, ret, params, isVarArg):
         count = len(params)
@@ -661,6 +665,9 @@ def register_library(library):
 
     library.LLVMFloatType.argtypes = []
     library.LLVMFloatType.restype = c_object_p
+
+    library.LLVMPointerType.argtypes = [Type, c_uint]
+    library.LLVMPointerType.restype = c_object_p
 
     library.LLVMPrintTypeToString.argtypes = [Type]
     library.LLVMPrintTypeToString.restype = c_char_p

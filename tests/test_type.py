@@ -31,7 +31,11 @@ class TypeTest(unittest.TestCase):
 
         self.assertEqual('i8 (i8)', f.name)
 
+    def testCreatePointer(self):
+        ty = Type.int8()
+        p = Type.pointer(ty)
     
+        self.assertEqual('i8*', p.name)
         
 if __name__ == '__main__':
     unittest.main()
