@@ -23,6 +23,9 @@ from ctypes import c_size_t
 from ctypes import c_int
 from ctypes import c_double
 from ctypes import cast
+from ctypes import pointer
+
+from . import util  # Only import modules
 
 __all__ = [
     "lib",
@@ -241,16 +244,30 @@ class Type(LLVMObject):
 
     def element_type(self):
         return Type(lib.LLVMGetElementType(self))
+
+    @staticmethod
+    def structure(types, packed, context=None):
+        count, types_array = util.to_c_array(types)
+        if context is None:
+            return Type(lib.LLVMStructType(types_array, count, packed))
+        else:
+            return Type(lib.LLVMStructTypeInContext(
+                context, types_array, count, package))
+
+    def num_elements(self):
+        return lib.LLVMCountStructElementTypes(self)
+
+    def elements(self):
+        elems = pointer(c_object_p())
+        count = self.num_elements()
+        lib.LLVMGetStructElementTypes(self, elems)
+        return [Type(elems[i]) for i in xrange(count)]
     
     @classmethod
     def function(cls, ret, params, isVarArg):
-        count = len(params)
-        param_array = (c_object_p * count) ()
-        for i in xrange(count):
-            param_array[i] = params[i].from_param()
+        count, param_array = util.to_c_array(params)
         return Type(lib.LLVMFunctionType(
             ret, param_array, count, isVarArg))
-
 
     def dump(self):
         lib.LLVMDumpType(self)
@@ -675,6 +692,22 @@ def register_library(library):
     library.LLVMGetElementType.argtypes = [Type]
     library.LLVMGetElementType.restype = c_object_p
 
+    library.LLVMStructType.argtypes = [POINTER(c_object_p), c_uint, c_bool]
+    library.LLVMStructType.restype = c_object_p
+    
+    library.LLVMStructTypeInContext.argtypes = [Context,
+                                                POINTER(c_object_p),
+                                                c_uint,
+                                                c_bool]
+    library.LLVMStructTypeInContext.restype = c_object_p
+
+    library.LLVMCountStructElementTypes.argtypes = [Type]
+    library.LLVMCountStructElementTypes.restype = c_uint
+
+    library.LLVMGetStructElementTypes.argtypes = [Type,
+                                                        POINTER(c_object_p)]
+    library.LLVMGetStructElementTypes.restype = None
+    
     library.LLVMPrintTypeToString.argtypes = [Type]
     library.LLVMPrintTypeToString.restype = c_char_p
 

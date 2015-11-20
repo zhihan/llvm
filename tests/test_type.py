@@ -39,6 +39,19 @@ class TypeTest(unittest.TestCase):
 
         t = p.element_type()
         self.assertEqual('i8', t.name)
+
+    def testCreateStruct(self):
+        ty = Type.int8()
+        p = Type.structure([ty, ty], False)
+
+        self.assertEqual('{ i8, i8 }', p.name)
+        self.assertEqual(2, p.num_elements())
+
+        elems = p.elements()
+        t1 = elems[0]
+        self.assertEqual('i8', t1.name)
+        t2 = elems[1]
+        self.assertEqual('i8', t2.name)
         
 if __name__ == '__main__':
     unittest.main()
