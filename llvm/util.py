@@ -7,3 +7,4 @@ def to_c_array(params):
     for i in xrange(count):
         param_array[i] = params[i].from_param()
     return (count, param_array)
+

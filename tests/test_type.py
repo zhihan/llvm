@@ -30,6 +30,15 @@ class TypeTest(unittest.TestCase):
         f = Type.function(ty, [ty], False)
 
         self.assertEqual('i8 (i8)', f.name)
+        self.assertFalse(f.is_function_vararg())
+
+        r = f.return_type()
+        self.assertEqual('i8', r.name)
+        self.assertEqual(1, f.num_params())
+
+        tys = f.param_types()
+        self.assertEqual('i8', tys[0].name)
+        self.assertEqual(1, len(tys))
 
     def testCreatePointer(self):
         ty = Type.int8()

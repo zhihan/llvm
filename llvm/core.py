@@ -294,13 +294,30 @@ class Type(LLVMObject):
 
     def is_packed(self):
         return lib.LLVMIsPackedStruct(self)
-    
+
+    # Function type
     @classmethod
     def function(cls, ret, params, isVarArg):
         count, param_array = util.to_c_array(params)
         return Type(lib.LLVMFunctionType(
             ret, param_array, count, isVarArg))
 
+    def is_function_vararg(self):
+        return lib.LLVMIsFunctionVarArg(self)
+
+    def return_type(self):
+        return Type(lib.LLVMGetReturnType(self))
+
+    def num_params(self):
+        return lib.LLVMCountParamTypes(self)
+
+    def param_types(self):
+        dest = pointer(c_object_p())
+        count = self.num_params()
+        lib.LLVMGetParamTypes(self, dest)
+        return [Type(dest[i]) for i in xrange(count)]
+
+    # Special types
     @staticmethod
     def void(context=None):
         if context is None:
@@ -359,6 +376,10 @@ class Value(LLVMObject):
     def name(self):
         return lib.LLVMGetValueName(self)
 
+    @name.setter
+    def name(self, n):
+        lib.LLVMSetValueName(self, n)
+ 
     @property
     def type(self):
         return Type(lib.LLVMTypeOf(self))
@@ -808,6 +829,18 @@ def register_library(library):
     library.LLVMFunctionType.argtype = [Type, POINTER(c_object_p), c_uint, c_bool]
     library.LLVMFunctionType.restype = c_object_p
 
+    library.LLVMIsFunctionVarArg.argtype = [Type]
+    library.LLVMIsFunctionVarArg.restype = c_bool
+
+    library.LLVMGetReturnType.argtypes = [Type]
+    library.LLVMGetReturnType.restype = c_object_p
+
+    library.LLVMCountParamTypes.argtypes = [Type]
+    library.LLVMCountParamTypes.restype = c_uint
+
+    library.LLVMGetParamTypes.argtypes = [Type, POINTER(c_object_p)]
+    library.LLVMGetParamTypes.restype = None
+                
     # Pass Registry declarations.
     library.LLVMGetGlobalPassRegistry.argtypes = []
     library.LLVMGetGlobalPassRegistry.restype = c_object_p
@@ -913,6 +946,9 @@ def register_library(library):
     
     library.LLVMGetValueName.argtypes = [Value]
     library.LLVMGetValueName.restype = c_char_p
+
+    library.LLVMSetValueName.argtypes = [Value, c_char_p]
+    library.LLVMSetValueName.restype = None
 
     library.LLVMConstReal.argtypes = [Type, c_double]
     library.LLVMConstReal.restype = c_object_p
