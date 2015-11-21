@@ -34,7 +34,7 @@ class TypeTest(unittest.TestCase):
     def testCreatePointer(self):
         ty = Type.int8()
         p = Type.pointer(ty)
-    
+        self.assertEqual(0, p.pointer_address_space())
         self.assertEqual('i8*', p.name)
 
         t = p.element_type()
@@ -52,6 +52,45 @@ class TypeTest(unittest.TestCase):
         self.assertEqual('i8', t1.name)
         t2 = elems[1]
         self.assertEqual('i8', t2.name)
+
+    def testCreateNamedStruct(self):
+        ty = Type.create_named_structure(self.global_context, "mystruct")
+        self.assertEqual('mystruct', ty.get_name())
+
+        el = Type.int8()
+        ty.set_body([el, el], True)
+        self.assertEqual(2, ty.num_elements())
+        self.assertTrue(ty.is_packed())
+
+    def testCreateArrayType(self):
+        ty = Type.int8()
+        a = Type.array(ty, 2)
+        self.assertEqual(2, a.array_length())
+
+        t = a.element_type()
+        self.assertEqual(ty.name, t.name)
+        
+    def testCreateVectorType(self):
+        ty = Type.int8()
+        a = Type.vector(ty, 2)
+        self.assertEqual(2, a.vector_size())
+
+        t = a.element_type()
+        self.assertEqual(ty.name, t.name)
+
+    def testCreateVoidType(self):
+        ty = Type.void()
+        self.assertEqual('void', ty.name)
+
+        t = Type.void(context=self.global_context)
+        self.assertEqual('void', t.name)
+
+    def testCreateLabelType(self):
+        ty = Type.label()
+        self.assertEqual('label', ty.name)
+
+        t = Type.label(context=self.global_context)
+        self.assertEqual('label', t.name)
         
 if __name__ == '__main__':
     unittest.main()

@@ -242,8 +242,25 @@ class Type(LLVMObject):
     def pointer(ty, address_space=0):
         return Type(lib.LLVMPointerType(ty, address_space))
 
+    def pointer_address_space(self):
+        return lib.LLVMGetPointerAddressSpace(self)
+
+    @staticmethod
+    def array(ty, count):
+        return Type(lib.LLVMArrayType(ty, count))
+
+    def array_length(self):
+        return lib.LLVMGetArrayLength(self)
+
     def element_type(self):
         return Type(lib.LLVMGetElementType(self))
+
+    @staticmethod
+    def vector(ty, count):
+        return Type(lib.LLVMVectorType(ty, count))
+
+    def vector_size(self):
+        return lib.LLVMGetVectorSize(self)
 
     @staticmethod
     def structure(types, packed, context=None):
@@ -262,6 +279,21 @@ class Type(LLVMObject):
         count = self.num_elements()
         lib.LLVMGetStructElementTypes(self, elems)
         return [Type(elems[i]) for i in xrange(count)]
+
+    @staticmethod
+    def create_named_structure(context, name):
+        """Create a named (empty) structure"""
+        return Type(lib.LLVMStructCreateNamed(context, name))
+
+    def get_name(self):
+        return lib.LLVMGetStructName(self)
+
+    def set_body(self, types, packed):
+        count, type_array = util.to_c_array(types)
+        lib.LLVMStructSetBody(self, type_array, count, packed)
+
+    def is_packed(self):
+        return lib.LLVMIsPackedStruct(self)
     
     @classmethod
     def function(cls, ret, params, isVarArg):
@@ -269,6 +301,20 @@ class Type(LLVMObject):
         return Type(lib.LLVMFunctionType(
             ret, param_array, count, isVarArg))
 
+    @staticmethod
+    def void(context=None):
+        if context is None:
+            return Type(lib.LLVMVoidType())
+        else:
+            return Type(lib.LLVMVoidTypeInContext(context))
+
+    @staticmethod
+    def label(context=None):
+        if context is None:
+            return Type(lib.LLVMLabelType())
+        else:
+            return Type(lib.LLVMLabelTypeInContext(context))
+        
     def dump(self):
         lib.LLVMDumpType(self)
 
@@ -276,7 +322,7 @@ class Type(LLVMObject):
         return Context(lib.LLVMGetTypeContext(self))
 
 class Value(LLVMObject):
-
+    """Wrapper class for LLVM Value"""
     def __init__(self, value):
         LLVMObject.__init__(self, value)
 
@@ -689,9 +735,24 @@ def register_library(library):
     library.LLVMPointerType.argtypes = [Type, c_uint]
     library.LLVMPointerType.restype = c_object_p
 
+    library.LLVMGetPointerAddressSpace.argtypes = [Type]
+    library.LLVMGetPointerAddressSpace.restype = c_uint
+
+    library.LLVMArrayType.argtypes = [Type, c_uint]
+    library.LLVMArrayType.restype = c_object_p
+
     library.LLVMGetElementType.argtypes = [Type]
     library.LLVMGetElementType.restype = c_object_p
 
+    library.LLVMGetArrayLength.argtypes = [Type]
+    library.LLVMGetArrayLength.restype = c_uint
+    
+    library.LLVMVectorType.argtypes = [Type, c_uint]
+    library.LLVMVectorType.restype = c_object_p
+
+    library.LLVMGetVectorSize.argtypes = [Type]
+    library.LLVMGetVectorSize.restype = c_uint
+    
     library.LLVMStructType.argtypes = [POINTER(c_object_p), c_uint, c_bool]
     library.LLVMStructType.restype = c_object_p
     
@@ -705,8 +766,35 @@ def register_library(library):
     library.LLVMCountStructElementTypes.restype = c_uint
 
     library.LLVMGetStructElementTypes.argtypes = [Type,
-                                                        POINTER(c_object_p)]
+                                                  POINTER(c_object_p)]
     library.LLVMGetStructElementTypes.restype = None
+
+    library.LLVMStructCreateNamed.argtypes = [Context, c_char_p]
+    library.LLVMStructCreateNamed.restype = c_object_p
+
+    library.LLVMGetStructName.argtypes = [Type]
+    library.LLVMGetStructName.restype = c_char_p
+
+    library.LLVMStructSetBody.argtypes = [Type,
+                                          POINTER(c_object_p),
+                                          c_uint,
+                                          c_bool]
+    library.LLVMStructSetBody.restype = None
+
+    library.LLVMIsPackedStruct.argtypes = [Type]
+    library.LLVMIsPackedStruct.restype = c_bool
+
+    library.LLVMVoidTypeInContext.argtypes = [Context]
+    library.LLVMVoidTypeInContext.restype = c_object_p
+
+    library.LLVMVoidType.argtypes = []
+    library.LLVMVoidType.restype = c_object_p
+    
+    library.LLVMLabelTypeInContext.argtypes = [Context]
+    library.LLVMLabelTypeInContext.restype = c_object_p
+
+    library.LLVMLabelType.argtypes = []
+    library.LLVMLabelType.restype = c_object_p
     
     library.LLVMPrintTypeToString.argtypes = [Type]
     library.LLVMPrintTypeToString.restype = c_char_p
