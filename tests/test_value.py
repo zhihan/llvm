@@ -3,10 +3,13 @@ import unittest
 from llvm.core import Context
 from llvm.core import Type
 from llvm.core import Value
+from llvm.core import Module
+
+from llvm.global_variables import Global
 
 class ValueTest(unittest.TestCase):
     def setUp(self):
-        pass
+        self.module = Module.CreateWithName('module')
 
     def testNullInt8(self):
         ty = Type.int8()
@@ -28,13 +31,21 @@ class ValueTest(unittest.TestCase):
         self.assertEquals(3L, v.get_signext_value())
         self.assertEquals('i8 3', str(v))
 
-    def testName(self):
+    def testConstantCannotBeNamed(self):
         ty = Type.int8()
-        v = Value.const_int(ty, 1, True)
+        v = Value.const_int(ty, 3, True)
+        self.assertEquals('', v.name)
+        v.name = 'something'
+        self.assertEquals('', v.name)
+        
+    def testName(self):
+        # constants cannot be named. 
+        ty = Type.int8(context=self.module.context)
+        v = Global.add(self.module, ty, 'x')
 
-        self.assertEqual('', v.name)
+        self.assertEqual('x', v.name)
         v.name = 'one'
-        # self.assertEqual('one', v.name)
+        self.assertEqual('one', v.name)
 
 
 if __name__ == "__main__":
