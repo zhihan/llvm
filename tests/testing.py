@@ -59,6 +59,31 @@ def create_timestwo_module_with_global():
     bldr.ret(y)    
     return (mod, f)
 
+def create_timestwo_module_with_function():
+    mod = Module.CreateWithName('module')
+    ty = Type.int8(context=mod.context)
+    ft = Type.function(ty, [ty], False)
+    bldr = Builder.create(mod.context)
+
+    f = mod.add_function('timestwo', ft)
+    bb = f.append_basic_block('body')
+    bldr.position_at_end(bb)
+    x = f.get_param(0)
+    two = Value.const_int(ty, 2L, True)
+    y = bldr.mul(x, two, 'res')
+    bldr.ret(y)
+
+    f2 = mod.add_function('caller', ft)
+    bb = f2.append_basic_block('body')
+    exit = f2.append_basic_block('exit')
+    bldr.position_at_end(bb)
+    inv = bldr.invoke(f, [f2.get_param(0)], exit, exit, 'invoke')
+    bldr.position_at_end(exit)
+    bldr.ret(inv)
+    
+    return mod
+
+
 def create_lessthanzero_module():
     mod = Module.CreateWithName('module')
 

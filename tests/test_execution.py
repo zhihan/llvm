@@ -7,6 +7,7 @@ from llvm.execution import ExecutionEngine
 from testing import create_timestwo_module
 from testing import create_timestwo_module_with_local
 from testing import create_timestwo_module_with_global
+from testing import create_timestwo_module_with_function
 from testing import create_lessthanzero_module
 from testing import create_abs_module
 from testing import create_cumsum_module
@@ -62,6 +63,15 @@ class ExecutionTest(unittest.TestCase):
         ee = ExecutionEngine.create_interpreter(mod)
         ty = Type.int8(context=mod.context)
         f = mod.get_function('timestwo')
+        x = GenericValue.of_int(ty, 3L, True)
+        y = ee.run_function(f, [x])
+        self.assertEquals(6L, y.to_int(True))
+
+    def testTimesTwoWithFunction(self):
+        mod = create_timestwo_module_with_function()
+        ee = ExecutionEngine.create_interpreter(mod)
+        ty = Type.int8(context=mod.context)
+        f = mod.get_function('caller')
         x = GenericValue.of_int(ty, 3L, True)
         y = ee.run_function(f, [x])
         self.assertEquals(6L, y.to_int(True))
