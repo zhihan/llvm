@@ -384,6 +384,12 @@ class Value(LLVMObject):
     def type(self):
         return Type(lib.LLVMTypeOf(self))
 
+    def is_constant(self):
+        return lib.LLVMIsConstant(self)
+
+    def is_undef(self):
+        return lib.LLVMIsUndef(self)
+
     def __str__(self):
         return lib.LLVMPrintValueToString(self)
 
@@ -961,6 +967,12 @@ def register_library(library):
 
     library.LLVMTypeOf.argtypes = [Value]
     library.LLVMTypeOf.restype = c_object_p
+
+    library.LLVMIsConstant.argtypes = [Value]
+    library.LLVMIsConstant.restype = c_bool
+    
+    library.LLVMIsUndef.argtypes = [Value]
+    library.LLVMIsUndef.restype = c_bool
 
     library.LLVMPrintValueToString.argtypes = [Value]
     library.LLVMPrintValueToString.restype = c_char_p

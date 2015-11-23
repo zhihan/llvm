@@ -30,7 +30,10 @@ class ValueTest(unittest.TestCase):
 
         self.assertEquals(3L, v.get_signext_value())
         self.assertEquals('i8 3', str(v))
-
+        self.assertEquals('i8', v.type.name)
+        self.assertFalse(v.is_undef())
+        
+        
     def testConstantCannotBeNamed(self):
         ty = Type.int8()
         v = Value.const_int(ty, 3, True)
@@ -46,6 +49,8 @@ class ValueTest(unittest.TestCase):
         self.assertEqual('x', v.name)
         v.name = 'one'
         self.assertEqual('one', v.name)
+        self.assertTrue(v.is_constant())
+        self.assertFalse(v.is_undef())
 
 
 if __name__ == "__main__":
