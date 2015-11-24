@@ -68,6 +68,14 @@ class LLVMObject(object):
         if self._self_owned and self._disposer:
             self._disposer(self)
 
+    def __eq__(self, other):
+        """Object identity"""
+        if isinstance(other, LLVMObject):
+            return (self._as_parameter_.contents.value ==
+                    other._as_parameter_.contents.value)
+        else:
+            return False
+
 class CachedProperty(object):
     """Decorator that caches the result of a property lookup.
 

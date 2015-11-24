@@ -15,6 +15,12 @@ class TypeTest(unittest.TestCase):
         ty = Type.int8()
         self.assertEqual('i8', ty.name)
         ty.dump()
+
+    def testTypeEquality(self):
+        ty1 = Type.int8()
+        ty2 = Type.int8()
+
+        self.assertEqual(ty1, ty2)
         
     def testCreateInt1(self):
         ty = Type.int1(self.global_context)
