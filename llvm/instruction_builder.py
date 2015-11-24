@@ -9,6 +9,7 @@ from .core import BasicBlock
 from .core import Type
 from .core import IntPredicate
 from .core import PhiNode
+from .core import Function
 
 from . import util
 
@@ -83,20 +84,11 @@ class Builder(LLVMObject):
     def phi(self, ty, name):
         return PhiNode(lib.LLVMBuildPhi(self, ty, name))
 
-    def invoke(self, fn, args, then, catch, name):
+    def call(self, fn, args, name):
         count, args_array = util.to_c_array(args)
-        return Value(lib.LLVMBuildInvoke(self, fn, args_array,
-                                         count, then, catch,
-                                         name))
+        return Value(lib.LLVMBuildCall(self, fn, args_array,
+                                       count, name))
 
-    def landing_pad(self, ty, num_clauses, name, personality=None):
-        person = personality if personality else Value(c_object_p())
-        return Value(lib.LLVMBuildLandingPad(self,
-                                             ty,
-                                             person,
-                                             num_clauses,
-                                             name))
-      
     def position_at_end(self, bb):
         lib.LLVMPositionBuilderAtEnd(self, bb)
 
@@ -152,20 +144,11 @@ def register_library(library):
     library.LLVMBuildLoad.argtypes = [Builder, Value, c_char_p]
     library.LLVMBuildLoad.restype = c_object_p
 
-    library.LLVMBuildInvoke.argtypes = [Builder,
-                                        Value,
-                                        POINTER(c_object_p),
-                                        c_uint,
-                                        BasicBlock,
-                                        BasicBlock,
-                                        c_char_p]
-    library.LLVMBuildInvoke.restype = c_object_p
+    library.LLVMBuildCall.argtypes = [Builder,
+                                      Function,
+                                      POINTER(c_object_p),
+                                      c_uint,
+                                      c_char_p]
+    library.LLVMBuildCall.restype = c_object_p
     
-    lib.LLVMBuildLandingPad.argtypes = [Builder,
-                                        Type,
-                                        Value,
-                                        c_uint,
-                                        c_char_p]
-    lib.LLVMBuildLandingPad.restype = c_object_p
-                                        
 register_library(lib)

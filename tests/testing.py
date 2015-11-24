@@ -75,11 +75,9 @@ def create_timestwo_module_with_function():
 
     f2 = mod.add_function('caller', ft)
     bb = f2.append_basic_block('body')
-    exit = f2.append_basic_block('exit')
     bldr.position_at_end(bb)
-    inv = bldr.invoke(f, [f2.get_param(0)], exit, exit, 'invoke')
-    bldr.position_at_end(exit)
-    bldr.ret(inv)
+    res = bldr.call(f, [f2.get_param(0)], 'ca')
+    bldr.ret(res)
     
     return mod
 

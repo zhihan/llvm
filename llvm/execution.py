@@ -51,6 +51,15 @@ class ExecutionEngine(LLVMObject):
             raise Exception('Error in creating interpreter: %s' % out.value)
         return ExecutionEngine(ee)
 
+    @staticmethod
+    def create_execution_engine(module):
+        ee = c_object_p()
+        out = c_char_p()
+        result = lib.LLVMCreateExecutionEngineForModule(byref(ee), module, byref(out))
+        if result:
+            raise Exception('Error in creating exeuction engine: %s' % out.value)
+        return ExecutionEngine(ee)
+
     def run_function(self, fn, args):
         count = len(args)
         arg_array = (c_object_p * count)()
@@ -74,6 +83,16 @@ def register_library(library):
     library.LLVMGenericValueToFloat.argtypes = [Type, GenericValue]
     library.LLVMGenericValueToFloat.restype = c_double
 
+    library.LLVMCreateExecutionEngineForModule.argtypes = [POINTER(c_object_p),
+                                                           Module,
+                                                           POINTER(c_char_p)]
+    library.LLVMCreateExecutionEngineForModule.restype = c_object_p
+                                                           
+    library.LLVMCreateInterpreterForModule.argtypes = [POINTER(c_object_p),
+                                                       Module,
+                                                       POINTER(c_char_p)]
+    library.LLVMCreateInterpreterForModule.restype = c_object_p
+ 
     library.LLVMRunFunction.argtypes = [ExecutionEngine, Value, c_uint, POINTER(c_object_p)]
     library.LLVMRunFunction.restype = c_object_p
         

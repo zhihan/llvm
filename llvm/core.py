@@ -563,9 +563,8 @@ class Function(Value):
 
     def verify(self, action=None):
         return lib.LLVMVerifyFunction(self, action)
-    
-class BasicBlock(LLVMObject):
 
+class BasicBlock(LLVMObject):
     def __init__(self, value):
         LLVMObject.__init__(self, value)
 
