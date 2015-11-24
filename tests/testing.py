@@ -23,6 +23,19 @@ def create_timestwo_module():
     bldr.ret(y)    
     return (mod, f)
 
+def create_two_module():
+    mod = Module.CreateWithName('module')
+    ty = Type.int8(context=mod.context)
+    ft = Type.function(ty, [], False)
+    f = mod.add_function('two', ft)
+    bb = f.append_basic_block('body')
+    bldr = Builder.create(mod.context)
+    bldr.position_at_end(bb)
+    two = Value.const_int(ty, 2L, True)
+    bldr.ret(two)    
+    return mod
+    
+
 def create_timestwo_module_with_local():
     mod = Module.CreateWithName('module')
     ty = Type.int8(context=mod.context)

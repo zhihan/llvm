@@ -1074,6 +1074,13 @@ def initialize_llvm():
     lib.LLVMInitializeCodeGen(p)
     lib.LLVMInitializeTarget(p)
 
+    # Initialize native code generation for Intel Mac target.
+    lib.LLVMInitializeX86TargetInfo()
+    lib.LLVMInitializeX86Target()
+    lib.LLVMInitializeX86TargetMC()
+    lib.LLVMLinkInMCJIT()
+    lib.LLVMInitializeX86AsmPrinter()
+    
 def shutdown_llvm():
     lib.LLVMShutdown()
 

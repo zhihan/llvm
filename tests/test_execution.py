@@ -11,6 +11,7 @@ from testing import create_timestwo_module_with_function
 from testing import create_lessthanzero_module
 from testing import create_abs_module
 from testing import create_cumsum_module
+from testing import create_two_module
 
 class ExecutionTest(unittest.TestCase):
     def setUp(self):
@@ -40,15 +41,13 @@ class ExecutionTest(unittest.TestCase):
         y = ee.run_function(f, [x])
         self.assertEquals(6L, y.to_int(True))
 
-    def testTimesTwo_EE(self):
-        mod, _ = create_timestwo_module()
-        ee = ExecutionEngine.create_execution_engine(mod)
+    def testTimesTwo_JIT(self):
+        mod = create_two_module()
+        ee = ExecutionEngine.create_jit(mod)
         ty = Type.int8(context=mod.context)
-        f = mod.get_function('timestwo')
-        x = GenericValue.of_int(ty, 3L, True)
-        y = ee.run_function(f, [x])
-        self.assertEquals(6L, y.to_int(True))
-
+        f = mod.get_function('two')
+        y = ee.run_function(f, [])
+        self.assertEquals(2L, y.to_int(True))
         
     def testTimesTwoWithLocal(self):
         mod, _ = create_timestwo_module_with_local()

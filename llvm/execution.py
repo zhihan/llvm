@@ -60,6 +60,15 @@ class ExecutionEngine(LLVMObject):
             raise Exception('Error in creating exeuction engine: %s' % out.value)
         return ExecutionEngine(ee)
 
+    @staticmethod
+    def create_jit(module):
+        ee = c_object_p()
+        out = c_char_p()
+        result = lib.LLVMCreateJITCompilerForModule(byref(ee), module, 0, byref(out))
+        if result:
+            raise Exception('Error in creating exeuction engine: %s' % out.value)
+        return ExecutionEngine(ee)
+
     def run_function(self, fn, args):
         count = len(args)
         arg_array = (c_object_p * count)()
