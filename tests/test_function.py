@@ -30,5 +30,14 @@ class ModuleTest(unittest.TestCase):
         self.assertFalse(f.verify(
             VerifierFailureActionTy.PrintMessageAction.value))
 
+        x = [fn for fn in mod]
+        self.assertEquals([f], x)
+
+        bbs = [b for b in f]
+        self.assertEquals(1, len(bbs))
+
+        ins = [i for i in bbs[0]]
+        self.assertEquals(2, len(ins))
+
 if __name__ == '__main__':
     unittest.main()

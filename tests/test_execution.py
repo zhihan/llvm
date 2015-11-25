@@ -49,6 +49,14 @@ class ExecutionTest(unittest.TestCase):
         y = ee.run_function(f, [])
         self.assertEquals(2L, y.to_int(True))
         
+    def testTimesTwo_execution(self):
+        mod = create_two_module()
+        ee = ExecutionEngine.create_execution_engine(mod)
+        ty = Type.int8(context=mod.context)
+        f = mod.get_function('two')
+        y = ee.run_function(f, [])
+        self.assertEquals(2L, y.to_int(True))
+
     def testTimesTwoWithLocal(self):
         mod, _ = create_timestwo_module_with_local()
         ee = ExecutionEngine.create_interpreter(mod)

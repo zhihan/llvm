@@ -51,10 +51,6 @@ class Builder(LLVMObject):
         """Multiply"""
         return Value(lib.LLVMBuildMul(self, lhs, rhs, name))
 
-    def load(self, pointer, name):
-        """Load the content of a pointer"""
-        return Value(lib.LLVMBuildLoad(self, pointer, name))
-
     def ret(self, value):
         """Return"""
         return Value(lib.LLVMBuildRet(self, value))
@@ -64,12 +60,15 @@ class Builder(LLVMObject):
         return Value(lib.LLVMBuildAlloca(self, ty, name))
 
     def store(self, val, ptr):
+        """Store the value in a pointer"""
         return Value(lib.LLVMBuildStore(self, val, ptr))
 
     def load(self, val, name):
+        """Load the content of a pointer into a temp value"""
         return Value(lib.LLVMBuildLoad(self, val, name))
 
     def branch(self, dest):
+        """Goto a block"""
         return Value(lib.LLVMBuildBr(self, dest))
 
     def conditional_branch(self, cond, true_branch, false_branch):

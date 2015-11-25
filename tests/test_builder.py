@@ -105,6 +105,16 @@ class InstructionBuilderTest(unittest.TestCase):
         arr = Type.array(ty, 2)
         b = bldr.alloca(arr, 'b')
         self.assertEqual('  %b = alloca [2 x i8]', str(b))
+        
+    def testLoad(self):
+        ty = Type.int8()
+        pt = Type.pointer(ty)
+        bldr = Builder.create()
 
+        a = bldr.alloca(ty, 'a')
+        b = bldr.load(a, 'b')
+        self.assertEqual('  %b = load i8* %a', str(b))
+
+        
 if __name__ == "__main__":
     unittest.main()
