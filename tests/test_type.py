@@ -19,6 +19,20 @@ class TypeTest(unittest.TestCase):
         context = ty.get_context()
         self.assertEqual(context, self.global_context)
 
+    def testCreateFloat(self):
+        t1 = Type.float()
+        t2 = Type.float(self.global_context)
+
+        self.assertEqual(t1, t2)
+        self.assertEqual('float', t1.name)
+
+    def testCreateDouble(self):
+        t1 = Type.double()
+        t2 = Type.double(self.global_context)
+
+        self.assertEqual(t1, t2)
+        self.assertEqual('double', t1.name)
+        
     def testTypeEquality(self):
         ty1 = Type.int8()
         ty2 = Type.int8()
