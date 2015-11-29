@@ -29,8 +29,14 @@ class ModuleTest(unittest.TestCase):
 
         self.assertFalse(f.verify(
             VerifierFailureActionTy.PrintMessageAction.value))
-
+        
+        self.assertEquals(mod.first, f)
+        self.assertEquals(mod.last, f)
+        
         x = [fn for fn in mod]
+        self.assertEquals([f], x)
+
+        x = [fn for fn in reversed(mod)]
         self.assertEquals([f], x)
 
         bbs = [b for b in f]
