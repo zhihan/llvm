@@ -670,6 +670,8 @@ class PhiNode(Value):
             block_array[i] = blocks[i].from_param()
         lib.LLVMAddIncoming(self, val_array, block_array, count)
 
+    def count_incoming(self):
+        return lib.LLVMCountIncoming(self)
     
 class Context(LLVMObject):
 
@@ -855,6 +857,9 @@ def register_library(library):
                                         POINTER(c_object_p),
                                         c_int]
     library.LLVMAddIncoming.restype = None
+
+    library.LLVMCountIncoming.argtype = [PhiNode]
+    library.LLVMCountIncoming.restype = c_int
 
     # Context declarations.
     library.LLVMContextCreate.argtypes = []

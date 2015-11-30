@@ -5,9 +5,10 @@ from llvm.core import Type
 from llvm.core import Function
 from llvm.core import Value
 from llvm.core import VerifierFailureActionTy
+from llvm.core import OpCode
+from llvm.core import PhiNode
 
 from llvm.instruction_builder import Builder
-
 from llvm.global_variables import Global
 
 from testing import *
@@ -44,6 +45,16 @@ class ModuleTest(unittest.TestCase):
 
         ins = [i for i in bbs[0]]
         self.assertEquals(2, len(ins))
+
+    def test_phi(self):
+        mod, _  = create_abs_module()
+        f = mod.get_function('abs')
+        bb = [b for b in f if b.name == 'merge']
+        instruction = [i for i in bb[0] if i.name == 'y']
+    
+        self.assertEqual(OpCode.PHI, instruction[0].opcode)
+        phi = PhiNode(instruction[0].from_param())
+        self.assertEqual(2, phi.count_incoming())
 
 if __name__ == '__main__':
     unittest.main()
