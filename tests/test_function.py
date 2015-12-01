@@ -56,5 +56,8 @@ class ModuleTest(unittest.TestCase):
         phi = PhiNode(instruction[0].from_param())
         self.assertEqual(2, phi.count_incoming())
 
+        values = phi.incoming_values()
+        self.assertEqual(2, len(values))
+
 if __name__ == '__main__':
     unittest.main()

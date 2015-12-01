@@ -40,6 +40,7 @@ __all__ = [
     "Context",
     "PassRegistry",
     "Type",
+    'PhiNode',
     "VerifierFailureActionTy",
     "IntPredicate",
     "shutdown_llvm",
@@ -672,6 +673,10 @@ class PhiNode(Value):
 
     def count_incoming(self):
         return lib.LLVMCountIncoming(self)
+
+    def incoming_values(self):
+        n = self.count_incoming()
+        return [Value(lib.LLVMGetIncomingValue(self,i)) for i in xrange(n)] 
     
 class Context(LLVMObject):
 
@@ -858,8 +863,11 @@ def register_library(library):
                                         c_int]
     library.LLVMAddIncoming.restype = None
 
-    library.LLVMCountIncoming.argtype = [PhiNode]
+    library.LLVMCountIncoming.argtypes = [PhiNode]
     library.LLVMCountIncoming.restype = c_int
+
+    library.LLVMGetIncomingValue.argtypes = [PhiNode, c_uint]
+    library.LLVMGetIncomingValue.restype = c_object_p
 
     # Context declarations.
     library.LLVMContextCreate.argtypes = []
