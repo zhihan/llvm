@@ -59,5 +59,8 @@ class ModuleTest(unittest.TestCase):
         values = phi.incoming_values()
         self.assertEqual(2, len(values))
 
+        bb = phi.incoming_blocks()
+        self.assertEqual(2, len(bb))
+
 if __name__ == '__main__':
     unittest.main()

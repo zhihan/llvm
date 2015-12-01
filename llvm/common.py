@@ -73,7 +73,11 @@ class LLVMObject(object):
 
     def __eq__(self, other):
         """Object identity"""
-        if isinstance(other, LLVMObject):
+        if self.is_null():
+            return other.is_null()
+        elif other.is_null():
+            return False
+        elif isinstance(other, LLVMObject):
             return (self._as_parameter_.contents.value ==
                     other._as_parameter_.contents.value)
         else:

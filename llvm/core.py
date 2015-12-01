@@ -676,7 +676,12 @@ class PhiNode(Value):
 
     def incoming_values(self):
         n = self.count_incoming()
-        return [Value(lib.LLVMGetIncomingValue(self,i)) for i in xrange(n)] 
+        return [Value(lib.LLVMGetIncomingValue(self, i)) for i in xrange(n)]
+
+    def incoming_blocks(self):
+        n = self.count_incoming()
+        return [BasicBlock(lib.LLVMGetIncomingBlock(self, i))
+                for i in xrange(n)]
     
 class Context(LLVMObject):
 
@@ -869,7 +874,10 @@ def register_library(library):
     library.LLVMGetIncomingValue.argtypes = [PhiNode, c_uint]
     library.LLVMGetIncomingValue.restype = c_object_p
 
-    # Context declarations.
+    library.LLVMGetIncomingBlock.argtypes = [PhiNode, c_uint]
+    library.LLVMGetIncomingBlock.restype = c_object_p
+
+        # Context declarations.
     library.LLVMContextCreate.argtypes = []
     library.LLVMContextCreate.restype = c_object_p
 
