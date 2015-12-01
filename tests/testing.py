@@ -72,6 +72,37 @@ def create_timestwo_module_with_global():
     bldr.ret(y)    
     return (mod, f)
 
+def create_global_load_save_module():
+    mod = Module.CreateWithName('module')
+    ty = Type.int8(mod.context)
+    x = Global.add(mod, ty, 'x')
+    x.set_initializer(Value.const_int(ty, 0L, True))
+
+    def create_store():
+        ft = Type.function(Type.void(), [ty], False)
+        f = mod.add_function('store', ft)
+        bb = f.append_basic_block('body')
+        bldr = Builder.create(mod.context)
+        bldr.position_at_end(bb)
+
+        xt = f.get_param(0)
+        bldr.store(xt, x)
+        bldr.ret_void()
+
+    def create_load():
+        ft = Type.function(ty, [], False)
+        f = mod.add_function('load', ft)
+        bb = f.append_basic_block('body')
+        bldr = Builder.create(mod.context)
+        bldr.position_at_end(bb)
+
+        xt = bldr.load(x, "xt")
+        bldr.ret(xt)
+        
+    create_store()
+    create_load()
+    return mod
+
 def create_timestwo_module_with_function():
     mod = Module.CreateWithName('module')
     ty = Type.int8(context=mod.context)

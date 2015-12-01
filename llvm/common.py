@@ -61,6 +61,9 @@ class LLVMObject(object):
         """ctypes function that converts this object to a function parameter."""
         return self._as_parameter_
 
+    def is_null(self):
+        return not self._as_parameter_
+
     def __del__(self):
         if not hasattr(self, '_self_owned') or not hasattr(self, '_disposer'):
             return

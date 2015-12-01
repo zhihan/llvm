@@ -54,7 +54,10 @@ class Builder(LLVMObject):
     def ret(self, value):
         """Return"""
         return Value(lib.LLVMBuildRet(self, value))
-
+    
+    def ret_void(self):
+        return Value(lib.LLVMBuildRetVoid(self))
+    
     def alloca(self, ty, name):
         """Alloca"""
         return Value(lib.LLVMBuildAlloca(self, ty, name))
@@ -115,6 +118,9 @@ def register_library(library):
     
     library.LLVMBuildRet.argtypes = [Builder, Value]
     library.LLVMBuildRet.restype = c_object_p
+
+    library.LLVMBuildRetVoid.argtypes = [Builder]
+    library.LLVMBuildRetVoid.restype = c_object_p
 
     library.LLVMDisposeBuilder.argtypes = [Builder]
     library.LLVMDisposeBuilder.restype = None

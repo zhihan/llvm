@@ -12,6 +12,7 @@ from testing import create_lessthanzero_module
 from testing import create_abs_module
 from testing import create_cumsum_module
 from testing import create_two_module
+from testing import create_global_load_save_module
 
 class ExecutionTest(unittest.TestCase):
     def setUp(self):
@@ -129,6 +130,20 @@ class ExecutionTest(unittest.TestCase):
         x = GenericValue.of_int(ty, 10L, True)
         y = ee.run_function(f, [x])
         self.assertEquals(55L, y.to_int(True))
+
+    def testGlobalLoadSave(self):
+        mod = create_global_load_save_module()
+        ee = ExecutionEngine.create_interpreter(mod)
+        load = mod.get_function('load')
+        x0 = ee.run_function(load, [])
+        self.assertEquals(0L, x0.to_int(True))
+
+        ty = Type.int8(context=mod.context)
+        y = GenericValue.of_int(ty, 4L, True)
+        store = mod.get_function('store')
+        ee.run_function(store, [y])
+        x = ee.run_function(load, [])
+        self.assertEquals(4L, x.to_int(True))
 
 if __name__ == '__main__':
     unittest.main()
