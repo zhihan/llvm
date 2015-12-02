@@ -43,6 +43,7 @@ __all__ = [
     'PhiNode',
     "VerifierFailureActionTy",
     "IntPredicate",
+    "Use",
     "shutdown_llvm",
 ]
 
@@ -565,6 +566,28 @@ class Function(Value):
     def verify(self, action=None):
         return lib.LLVMVerifyFunction(self, action)
 
+class Use(LLVMObject):
+    def __init__(self, ptr):
+        LLVMObject.__init__(self, ptr)
+
+    @staticmethod
+    def first(val):
+        return Use(lib.LLVMGetFirstUse(val))
+
+    @property
+    def next(self):
+        u = lib.LLVMGetNextUse(self)
+        result = Use(u) if u else None
+        return result
+
+    @property
+    def used_value(self):
+        return Value(lib.LLVMGetUsedValue(self))
+
+    @property
+    def user(self):
+        return Value(lib.LLVMGetUser(self))
+    
 class BasicBlock(LLVMObject):
     def __init__(self, value):
         LLVMObject.__init__(self, value)
@@ -1058,6 +1081,19 @@ def register_library(library):
     library.LLVMGetInstructionOpcode.argtypes = [Instruction]
     library.LLVMGetInstructionOpcode.restype = c_uint
 
+    # Use
+    library.LLVMGetFirstUse.argtypes = [Value]
+    library.LLVMGetFirstUse.restype = c_object_p
+
+    library.LLVMGetNextUse.argtypes = [Use]
+    library.LLVMGetNextUse.restype = c_object_p
+
+    library.LLVMGetUsedValue.argtypes = [Use]
+    library.LLVMGetUsedValue.restype = c_object_p
+
+    library.LLVMGetUser.argtypes = [Use]
+    library.LLVMGetUser.restype = c_object_p
+    
 def register_enumerations():
     if Enums:
         return None
