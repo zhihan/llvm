@@ -398,14 +398,22 @@ class Value(LLVMObject):
     def dump(self):
         lib.LLVMDumpValue(self)
 
-    def get_operand(self, i):
-        return Value(lib.LLVMGetOperand(self, i))
+    # Related to User
+    @property
+    def operands(self):
+        n = lib.LLVMGetNumOperands(self)
+        return [Value(lib.LLVMGetOperand(self, i))
+                for i in xrange(n)]
 
     def set_operand(self, i, v):
-        return lib.LLVMSetOperand(self, i, v)
+        lib.LLVMSetOperand(self, i, v)
 
-    def __len__(self):
-        return lib.LLVMGetNumOperands(self)
+    @property
+    def uses(self):
+        n = lib.LLVMGetNumOperands(self)
+        return [Use(lib.LLVMGetOperandUse(self, i))
+                for i in xrange(n)]
+
 
 class Module(LLVMObject):
     """Represents the top-level structure of an llvm program in an opaque object."""
@@ -621,17 +629,6 @@ class BasicBlock(LLVMObject):
 
     def dump(self):
         lib.LLVMDumpValue(self.__as_value())
-
-    def get_operand(self, i):
-        return Value(lib.LLVMGetOperand(self.__as_value(),
-                                        i))
-
-    def set_operand(self, i, v):
-        return lib.LLVMSetOperand(self.__as_value(),
-                                  i, v)
-
-    def __len__(self):
-        return lib.LLVMGetNumOperands(self.__as_value())
 
     class __inst_iterator(object):
         def __init__(self, bb, reverse=False):
@@ -1026,12 +1023,15 @@ def register_library(library):
     library.LLVMGetOperand.argtypes = [Value, c_uint]
     library.LLVMGetOperand.restype = c_object_p
 
-    library.LLVMSetOperand.argtypes = [Value, Value, c_uint]
+    library.LLVMSetOperand.argtypes = [Value, c_uint, Value]
     library.LLVMSetOperand.restype = None
 
     library.LLVMGetNumOperands.argtypes = [Value]
     library.LLVMGetNumOperands.restype = c_uint
 
+    library.LLVMGetOperandUse.argtypes = [Value, c_uint]
+    library.LLVMGetOperandUse.restype = c_object_p
+    
     # Basic Block Declarations.
     library.LLVMGetFirstBasicBlock.argtypes = [Function]
     library.LLVMGetFirstBasicBlock.restype = c_object_p

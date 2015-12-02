@@ -31,5 +31,28 @@ class UseTest(unittest.TestCase):
         self.assertEqual(y, use.user)
         self.assertEqual(x, use.used_value)
 
+    def testOperands(self):
+        x = self.f.get_param(0)
+        two = Value.const_int(self.ty, 2L, True)
+        y = self.bldr.mul(x, two, 'res')
+
+        ops = y.operands
+        self.assertEqual(2, len(ops))
+        self.assertEqual([x, two], ops)
+
+        uses = y.uses
+        self.assertEqual(2, len(uses))
+        self.assertEqual(x, uses[0].used_value)
+        self.assertEqual(y, uses[0].user)
+        self.assertEqual(two, uses[1].used_value)
+        self.assertEqual(y, uses[1].user)
+
+        y.set_operand(0, two)
+        y.dump()
+        ops = y.operands
+        self.assertEqual(2, len(ops))
+        self.assertEqual([two, two], ops)
+
+        
 if __name__ == "__main__":
     unittest.main()
