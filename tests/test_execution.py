@@ -70,15 +70,6 @@ class ExecutionTest(unittest.TestCase):
         y = ee.run_function(f, [x])
         self.assertEquals(6L, y.to_int(True))
 
-    def testTimesTwoWithGlobal(self):
-        mod, _ = create_timestwo_module_with_global()
-        ee = ExecutionEngine.create_interpreter(mod)
-        ty = Type.int8(context=mod.context)
-        f = mod.get_function('timestwo')
-        x = GenericValue.of_int(ty, 3L, True)
-        y = ee.run_function(f, [x])
-        self.assertEquals(6L, y.to_int(True))
-
     def testTimesTwoWithFunction(self):
         mod = create_timestwo_module_with_function()
         ee = ExecutionEngine.create_interpreter(mod)
@@ -143,14 +134,16 @@ class ExecutionTest(unittest.TestCase):
         mod = create_global_load_save_array_module()
         ee = ExecutionEngine.create_interpreter(mod)
         load = mod.get_function('load')
-        x0 = ee.run_function(load, [])
+        ptr_ty = Type.int64(context=mod.context)
+        offset = GenericValue.of_int(ptr_ty, 1L, True)
+        x0 = ee.run_function(load, [offset])
         self.assertEquals(0L, x0.to_int(True))
 
         ty = Type.int8(context=mod.context)
         y = GenericValue.of_int(ty, 4L, True)
         store = mod.get_function('store')
-        ee.run_function(store, [y])
-        x = ee.run_function(load, [])
+        ee.run_function(store, [y, offset])
+        x = ee.run_function(load, [offset])
         self.assertEquals(4L, x.to_int(True))
 
 

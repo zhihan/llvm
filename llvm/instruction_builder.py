@@ -103,6 +103,7 @@ class Builder(LLVMObject):
             self, arr, idx, name))
 
     def gep(self, ptr, indices, name):
+        """getelementptr instruction"""
         count, idx_array = util.to_c_array(indices)
         r = Value(lib.LLVMBuildGEP(
             self, ptr, idx_array, count, name)) 

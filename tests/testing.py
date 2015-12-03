@@ -109,31 +109,32 @@ def create_global_load_save_array_module():
     array_ty = Type.array(ty, 2)
     x = Global.add(mod, array_ty, 'x')
     v = Value.const_int(ty, 0L, True)
-    ptr_ty = Type.int64(mod.context) 
+    ptr_ty = Type.int64(mod.context)
     v0 = Value.const_int(ptr_ty, 0L, True)
-    v1 = Value.const_int(ptr_ty, 1L, True)
     x.set_initializer(Value.const_array(ty, [v,v]))
 
     def create_store():
-        ft = Type.function(Type.void(), [ty], False)
+        ft = Type.function(Type.void(), [ty, ptr_ty], False)
         f = mod.add_function('store', ft)
         bb = f.append_basic_block('body')
         bldr = Builder.create(mod.context)
         bldr.position_at_end(bb)
 
         xt = f.get_param(0)
-        elem_ptr = bldr.gep(x, [v0, v1], 'elem')
+        offset = f.get_param(1)
+        elem_ptr = bldr.gep(x, [v0, offset], 'elem')
         bldr.store(xt, elem_ptr)
         bldr.ret_void()
 
     def create_load():
-        ft = Type.function(ty, [], False)
+        ft = Type.function(ty, [ptr_ty], False)
         f = mod.add_function('load', ft)
         bb = f.append_basic_block('body')
         bldr = Builder.create(mod.context)
         bldr.position_at_end(bb)
-
-        elem_ptr = bldr.gep(x, [v0, v1], 'elem')
+        
+        offset = f.get_param(0)
+        elem_ptr = bldr.gep(x, [v0, offset], 'elem')
         y = bldr.load(elem_ptr, 'y')
         bldr.ret(y)
 

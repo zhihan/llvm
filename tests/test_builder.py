@@ -131,6 +131,17 @@ class InstructionBuilderTest(unittest.TestCase):
         self.assertEqual('  %c = extractvalue [2 x i8] %content, 0', str(c))
         
 
+    def testGEP(self):
+        ty = Type.int64()
+        ptr_ty = Type.int64()
+        bldr = Builder.create()
+        arr_ty = Type.array(ty, 2)
+        
+        a = bldr.alloca(arr_ty, 'a')
+        offset = Value.const_int(ptr_ty, 0L, True)
+        b = bldr.gep(a, [offset, offset], 'gep')
+        self.assertEqual('  %gep = getelementptr [2 x i64]* %a, i64 0, i64 0',
+                         str(b))
         
 if __name__ == "__main__":
     unittest.main()
