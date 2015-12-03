@@ -115,6 +115,22 @@ class InstructionBuilderTest(unittest.TestCase):
         b = bldr.load(a, 'b')
         self.assertEqual('  %b = load i8* %a', str(b))
 
+    def testInsertValue(self):
+        ty = Type.int8()
+        v = Value.const_int(ty, 1L, True)
+        n = Value.const_int(ty, 2L, True)
+        arr_ty = Type.array(ty, 2)
+        bldr = Builder.create()
+
+        a = bldr.alloca(arr_ty, 'a')
+        a_content = bldr.load(a, 'content')
+        b = bldr.insert_value(a_content, v, 0, 'b')
+        self.assertEqual('  %b = insertvalue [2 x i8] %content, i8 1, 0', str(b))
+
+        c = bldr.extract_value(a_content, 0, 'c')
+        self.assertEqual('  %c = extractvalue [2 x i8] %content, 0', str(c))
+        
+
         
 if __name__ == "__main__":
     unittest.main()

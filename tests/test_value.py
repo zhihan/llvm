@@ -32,7 +32,16 @@ class ValueTest(unittest.TestCase):
         self.assertEquals('i8 3', str(v))
         self.assertEquals('i8', v.type.name)
         self.assertFalse(v.is_undef())
-        
+
+    def testConstInt8Array(self):
+        ty = Type.int8()
+        v = Value.const_int(ty, 3L, True)
+        arr = Value.const_array(ty, [v, v])
+
+        arr_ty = arr.type
+        self.assertEqual(2L, arr_ty.array_length())
+        self.assertEqual([v, v], arr.array_elements())
+         
         
     def testConstantCannotBeNamed(self):
         ty = Type.int8()

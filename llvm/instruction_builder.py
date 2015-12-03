@@ -62,6 +62,9 @@ class Builder(LLVMObject):
         """Alloca"""
         return Value(lib.LLVMBuildAlloca(self, ty, name))
 
+    def alloca_array(self, ty, val, name):
+        return Value(lib.LLVMBuildArrayAlloca(self, ty, val, name))
+
     def store(self, val, ptr):
         """Store the value in a pointer"""
         return Value(lib.LLVMBuildStore(self, val, ptr))
@@ -90,7 +93,21 @@ class Builder(LLVMObject):
         count, args_array = util.to_c_array(args)
         return Value(lib.LLVMBuildCall(self, fn, args_array,
                                        count, name))
+    
+    def insert_value(self, arr, val, idx, name):
+        return Value(lib.LLVMBuildInsertValue(
+            self, arr, val, idx, name))
+    
+    def extract_value(self, arr, idx, name):
+        return Value(lib.LLVMBuildExtractValue(
+            self, arr, idx, name))
 
+    def gep(self, ptr, indices, name):
+        count, idx_array = util.to_c_array(indices)
+        r = Value(lib.LLVMBuildGEP(
+            self, ptr, idx_array, count, name)) 
+        return r
+    
     def position_at_end(self, bb):
         lib.LLVMPositionBuilderAtEnd(self, bb)
 
@@ -143,6 +160,9 @@ def register_library(library):
     library.LLVMBuildAlloca.argtypes = [Builder, Type, c_char_p]
     library.LLVMBuildAlloca.restype = c_object_p
 
+    library.LLVMBuildArrayAlloca.argtypes = [Builder, Type, Value, c_char_p]
+    library.LLVMBuildArrayAlloca.restype = c_object_p
+
     library.LLVMBuildStore.argtypes = [Builder, Value, Value]
     library.LLVMBuildStore.restype = c_object_p
 
@@ -155,5 +175,23 @@ def register_library(library):
                                       c_uint,
                                       c_char_p]
     library.LLVMBuildCall.restype = c_object_p
+
+    library.LLVMBuildInsertValue.argtypes = [Builder,
+                                             Value,
+                                             Value,
+                                             c_uint,
+                                             c_char_p]
+    library.LLVMBuildInsertValue.restype = c_object_p
+
+    library.LLVMBuildGEP.argtypes = [Builder, Value,
+                                     POINTER(c_object_p),
+                                     c_uint, c_char_p]
+    library.LLVMBuildGEP.restype = c_object_p
+
+    library.LLVMBuildExtractValue.argtypes = [Builder,
+                                              Value,
+                                              c_uint,
+                                              c_char_p]
+    library.LLVMBuildExtractValue.restype = c_object_p
     
 register_library(lib)

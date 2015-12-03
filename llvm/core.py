@@ -227,6 +227,13 @@ class Type(LLVMObject):
             return Type(lib.LLVMInt1Type())
 
     @classmethod
+    def int64(cls, context=None):
+        if context is not None:
+            return Type(lib.LLVMInt64TypeInContext(context))
+        else:
+            return Type(lib.LLVMInt64Type())
+
+    @classmethod
     def double(cls, context=None):
         if context is not None:
             return Type(lib.LLVMDoubleTypeInContext(context))
@@ -374,6 +381,18 @@ class Value(LLVMObject):
         res = lib.LLVMConstRealGetDouble(self, byref(precision_lost))
         return (res, precision_lost)
 
+    @staticmethod
+    def const_array(ty, vals, packed=False):
+        count, val_array = util.to_c_array(vals)
+        return Value(lib.LLVMConstArray(
+            ty, val_array, count, packed))
+
+    def array_elements(self):
+        ty = self.type
+        n = ty.array_length()
+        return [Value(lib.LLVMGetElementAsConstant(self, i))
+                for i in xrange(n)]
+    
     @property
     def name(self):
         return lib.LLVMGetValueName(self)
@@ -771,6 +790,9 @@ def register_library(library):
     library.LLVMInt8TypeInContext.argtypes = [Context]
     library.LLVMInt8TypeInContext.restype = c_object_p
 
+    library.LLVMInt64TypeInContext.argtypes = [Context]
+    library.LLVMInt64TypeInContext.restype = c_object_p
+
     library.LLVMDoubleTypeInContext.argtypes = [Context]
     library.LLVMDoubleTypeInContext.restype = c_object_p
 
@@ -783,6 +805,9 @@ def register_library(library):
 
     library.LLVMInt8Type.argtypes = []
     library.LLVMInt8Type.restype = c_object_p
+
+    library.LLVMInt64Type.argtypes = []
+    library.LLVMInt64Type.restype = c_object_p
 
     library.LLVMDoubleType.argtypes = []
     library.LLVMDoubleType.restype = c_object_p
@@ -1005,6 +1030,12 @@ def register_library(library):
     library.LLVMConstRealGetDouble.argtypes = [Value, POINTER(c_bool)]
     library.LLVMConstRealGetDouble.restype = c_double
 
+    library.LLVMConstArray.argtypes = [Type, POINTER(c_object_p), c_uint, c_bool]
+    library.LLVMConstArray.restype = c_object_p
+
+    library.LLVMGetElementAsConstant.argtypes = [Value, c_uint]
+    library.LLVMGetElementAsConstant.restype = c_object_p
+    
     library.LLVMTypeOf.argtypes = [Value]
     library.LLVMTypeOf.restype = c_object_p
 
