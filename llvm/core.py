@@ -191,7 +191,7 @@ class MemoryBuffer(LLVMObject):
         return MemoryBuffer(memory)
 
     @classmethod
-    def fromString(cls, s):
+    def from_string(cls, s):
         memory = lib.LLVMCreateMemoryBufferWithMemoryRangeCopy(
             s, len(s), "inputBuffer")
         return MemoryBuffer(memory)
@@ -225,6 +225,13 @@ class Type(LLVMObject):
             return Type(lib.LLVMInt1TypeInContext(context))
         else:
             return Type(lib.LLVMInt1Type())
+
+    @classmethod
+    def int32(cls, context=None):
+        if context is not None:
+            return Type(lib.LLVMInt32TypeInContext(context))
+        else:
+            return Type(lib.LLVMInt32Type())
 
     @classmethod
     def int64(cls, context=None):
@@ -790,6 +797,9 @@ def register_library(library):
     library.LLVMInt8TypeInContext.argtypes = [Context]
     library.LLVMInt8TypeInContext.restype = c_object_p
 
+    library.LLVMInt32TypeInContext.argtypes = [Context]
+    library.LLVMInt32TypeInContext.restype = c_object_p
+
     library.LLVMInt64TypeInContext.argtypes = [Context]
     library.LLVMInt64TypeInContext.restype = c_object_p
 
@@ -805,6 +815,9 @@ def register_library(library):
 
     library.LLVMInt8Type.argtypes = []
     library.LLVMInt8Type.restype = c_object_p
+
+    library.LLVMInt32Type.argtypes = []
+    library.LLVMInt32Type.restype = c_object_p
 
     library.LLVMInt64Type.argtypes = []
     library.LLVMInt64Type.restype = c_object_p

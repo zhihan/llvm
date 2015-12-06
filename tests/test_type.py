@@ -10,11 +10,19 @@ class TypeTest(unittest.TestCase):
     def testCreateInt8(self):
         ty = Type.int8(self.global_context)
         self.assertEqual('i8', ty.name)
-        ty.dump()
 
         ty = Type.int8()
         self.assertEqual('i8', ty.name)
-        ty.dump()
+
+        context = ty.get_context()
+        self.assertEqual(context, self.global_context)
+
+    def testCreateInt32(self):
+        ty = Type.int32(self.global_context)
+        self.assertEqual('i32', ty.name)
+
+        ty = Type.int32()
+        self.assertEqual('i32', ty.name)
 
         context = ty.get_context()
         self.assertEqual(context, self.global_context)
@@ -42,11 +50,9 @@ class TypeTest(unittest.TestCase):
     def testCreateInt1(self):
         ty = Type.int1(self.global_context)
         self.assertEqual('i1', ty.name)
-        ty.dump()
 
         ty = Type.int1()
         self.assertEqual('i1', ty.name)
-        ty.dump()
  
     def testCreateFunction(self):
         ty = Type.int8()
