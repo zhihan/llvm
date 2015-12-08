@@ -209,6 +209,11 @@ class Type(LLVMObject):
         LLVMObject.__init__(self, ty)
 
     @property
+    def kind(self):
+        """Return the kind of the type"""
+        return TypeKind.from_value(lib.LLVMGetTypeKind(self))
+    
+    @property
     def name(self):
         return lib.LLVMPrintTypeToString(self)
 
@@ -894,6 +899,9 @@ def register_library(library):
     
     library.LLVMPrintTypeToString.argtypes = [Type]
     library.LLVMPrintTypeToString.restype = c_char_p
+
+    library.LLVMGetTypeKind.argtypes = [Type]
+    library.LLVMGetTypeKind.restype = c_int
 
     library.LLVMDumpType.argtype = [Type]
     library.LLVMDumpType.restype = None

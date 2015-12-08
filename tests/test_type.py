@@ -2,6 +2,7 @@ import unittest
 
 from llvm.core import Context
 from llvm.core import Type
+from llvm.core import TypeKind
 
 class TypeTest(unittest.TestCase):
     def setUp(self):
@@ -16,6 +17,9 @@ class TypeTest(unittest.TestCase):
 
         context = ty.get_context()
         self.assertEqual(context, self.global_context)
+
+        kind = ty.kind
+        self.assertEqual(TypeKind.Integer, kind)
 
     def testCreateInt32(self):
         ty = Type.int32(self.global_context)
