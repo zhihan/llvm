@@ -15,12 +15,23 @@ class TypeTest(unittest.TestCase):
         ty = Type.int8()
         self.assertEqual('i8', ty.name)
 
-        context = ty.get_context()
+        context = ty.context
         self.assertEqual(context, self.global_context)
 
         kind = ty.kind
         self.assertEqual(TypeKind.Integer, kind)
+        self.assertTrue(ty.is_sized())
 
+    def testCreateInt16(self):
+        ty = Type.int16(self.global_context)
+        self.assertEqual('i16', ty.name)
+
+        ty = Type.int16()
+        self.assertEqual('i16', ty.name)
+
+        context = ty.context
+        self.assertEqual(context, self.global_context)
+        
     def testCreateInt32(self):
         ty = Type.int32(self.global_context)
         self.assertEqual('i32', ty.name)
@@ -28,8 +39,15 @@ class TypeTest(unittest.TestCase):
         ty = Type.int32()
         self.assertEqual('i32', ty.name)
 
-        context = ty.get_context()
+        context = ty.context
         self.assertEqual(context, self.global_context)
+
+    def testCreateInt12(self):
+        ty = Type.int(12, self.global_context)
+        self.assertEqual('i12', ty.name)
+
+        ty = Type.int(12)
+        self.assertEqual('i12', ty.name)
 
     def testCreateFloat(self):
         t1 = Type.float()
@@ -37,6 +55,13 @@ class TypeTest(unittest.TestCase):
 
         self.assertEqual(t1, t2)
         self.assertEqual('float', t1.name)
+
+    def testCreateHalf(self):
+        t1 = Type.half()
+        t2 = Type.half(self.global_context)
+
+        self.assertEqual(t1, t2)
+        self.assertEqual('half', t1.name)
 
     def testCreateDouble(self):
         t1 = Type.double()

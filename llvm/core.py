@@ -212,6 +212,9 @@ class Type(LLVMObject):
     def kind(self):
         """Return the kind of the type"""
         return TypeKind.from_value(lib.LLVMGetTypeKind(self))
+
+    def is_sized(self):
+        return lib.LLVMTypeIsSized(self)
     
     @property
     def name(self):
@@ -232,6 +235,13 @@ class Type(LLVMObject):
             return Type(lib.LLVMInt1Type())
 
     @classmethod
+    def int16(cls, context=None):
+        if context is not None:
+            return Type(lib.LLVMInt16TypeInContext(context))
+        else:
+            return Type(lib.LLVMInt16Type())
+
+    @classmethod
     def int32(cls, context=None):
         if context is not None:
             return Type(lib.LLVMInt32TypeInContext(context))
@@ -246,11 +256,18 @@ class Type(LLVMObject):
             return Type(lib.LLVMInt64Type())
 
     @classmethod
-    def double(cls, context=None):
+    def int(cls, num_bits, context=None):
         if context is not None:
-            return Type(lib.LLVMDoubleTypeInContext(context))
+            return Type(lib.LLVMIntTypeInContext(context, num_bits))
         else:
-            return Type(lib.LLVMDoubleType())
+            return Type(lib.LLVMIntType(num_bits))
+        
+    @classmethod
+    def half(cls, context=None):
+        if context is not None:
+            return Type(lib.LLVMHalfTypeInContext(context))
+        else:
+            return Type(lib.LLVMHalfType())
 
     @classmethod
     def float(cls, context=None):
@@ -258,6 +275,14 @@ class Type(LLVMObject):
             return Type(lib.LLVMFloatTypeInContext(context))
         else:
             return Type(lib.LLVMFloatType())
+        
+    @classmethod
+    def double(cls, context=None):
+        if context is not None:
+            return Type(lib.LLVMDoubleTypeInContext(context))
+        else:
+            return Type(lib.LLVMDoubleType())
+
 
     @staticmethod
     def pointer(ty, address_space=0):
@@ -356,7 +381,8 @@ class Type(LLVMObject):
     def dump(self):
         lib.LLVMDumpType(self)
 
-    def get_context(self):
+    @property
+    def context(self):
         return Context(lib.LLVMGetTypeContext(self))
 
 class Value(LLVMObject):
@@ -802,18 +828,26 @@ def register_library(library):
     library.LLVMInt8TypeInContext.argtypes = [Context]
     library.LLVMInt8TypeInContext.restype = c_object_p
 
+    library.LLVMInt16TypeInContext.argtypes = [Context]
+    library.LLVMInt16TypeInContext.restype = c_object_p
+
     library.LLVMInt32TypeInContext.argtypes = [Context]
     library.LLVMInt32TypeInContext.restype = c_object_p
 
     library.LLVMInt64TypeInContext.argtypes = [Context]
     library.LLVMInt64TypeInContext.restype = c_object_p
 
-    library.LLVMDoubleTypeInContext.argtypes = [Context]
-    library.LLVMDoubleTypeInContext.restype = c_object_p
+    library.LLVMIntTypeInContext.argtypes = [Context, c_uint]
+    library.LLVMIntTypeInContext.restype = c_object_p
+
+    library.LLVMHalfTypeInContext.argtypes = [Context]
+    library.LLVMHalfTypeInContext.restype = c_object_p
 
     library.LLVMFloatTypeInContext.argtypes = [Context]
     library.LLVMFloatTypeInContext.restype = c_object_p
 
+    library.LLVMDoubleTypeInContext.argtypes = [Context]
+    library.LLVMDoubleTypeInContext.restype = c_object_p
 
     library.LLVMInt1Type.argtypes = []
     library.LLVMInt1Type.restype = c_object_p
@@ -821,17 +855,26 @@ def register_library(library):
     library.LLVMInt8Type.argtypes = []
     library.LLVMInt8Type.restype = c_object_p
 
+    library.LLVMInt16Type.argtypes = []
+    library.LLVMInt16Type.restype = c_object_p
+
     library.LLVMInt32Type.argtypes = []
     library.LLVMInt32Type.restype = c_object_p
 
     library.LLVMInt64Type.argtypes = []
     library.LLVMInt64Type.restype = c_object_p
 
-    library.LLVMDoubleType.argtypes = []
-    library.LLVMDoubleType.restype = c_object_p
+    library.LLVMIntType.argtypes = [c_uint]
+    library.LLVMIntType.restype = c_object_p
+
+    library.LLVMHalfType.argtypes = []
+    library.LLVMHalfType.restype = c_object_p
 
     library.LLVMFloatType.argtypes = []
     library.LLVMFloatType.restype = c_object_p
+
+    library.LLVMDoubleType.argtypes = []
+    library.LLVMDoubleType.restype = c_object_p
 
     library.LLVMPointerType.argtypes = [Type, c_uint]
     library.LLVMPointerType.restype = c_object_p
@@ -902,6 +945,9 @@ def register_library(library):
 
     library.LLVMGetTypeKind.argtypes = [Type]
     library.LLVMGetTypeKind.restype = c_int
+
+    library.LLVMTypeIsSized.argtypes = [Type]
+    library.LLVMTypeIsSized.restype = c_bool
 
     library.LLVMDumpType.argtype = [Type]
     library.LLVMDumpType.restype = None
