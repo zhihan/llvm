@@ -8,7 +8,7 @@
 #===------------------------------------------------------------------------===#
 
 from ctypes import POINTER
-from ctypes import c_void_p
+from ctypes import Structure
 from ctypes import cdll
 from ctypes import addressof
 
@@ -24,7 +24,11 @@ __all__ = [
     'get_library',
 ]
 
-c_object_p = POINTER(c_void_p)
+class Opaque(Structure):
+    """Opaque structure for objects"""
+    pass
+    
+c_object_p = POINTER(Opaque) 
 
 class LLVMObject(object):
     """Base class for objects that are backed by an LLVM data structure.
@@ -79,9 +83,6 @@ class LLVMObject(object):
         elif other.is_null():
             return False
         elif isinstance(other, LLVMObject):
-            # As far as I can tell, the use of POINTER(c_void_p) is a workaround
-            # to avoid casting issue in ctypes. The underlying data is not a
-            # pointer to pointer, but an opaque pointer.
             return (addressof(self._as_parameter_.contents) ==
                     addressof(other._as_parameter_.contents))
         else:
