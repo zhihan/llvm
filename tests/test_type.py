@@ -7,6 +7,15 @@ from llvm.core import TypeKind
 class TypeTest(unittest.TestCase):
     def setUp(self):
         self.global_context = Context.GetGlobalContext()
+
+    def testTypeCompare(self):
+        a = Type.int8()
+        b = Type.int8()
+
+        self.assertEqual(a, b)
+
+        c = Type.int32()
+        self.assertTrue(c != a)
     
     def testCreateInt8(self):
         ty = Type.int8(self.global_context)

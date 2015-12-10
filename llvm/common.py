@@ -10,6 +10,7 @@
 from ctypes import POINTER
 from ctypes import c_void_p
 from ctypes import cdll
+from ctypes import addressof
 
 import ctypes.util
 import platform
@@ -78,8 +79,11 @@ class LLVMObject(object):
         elif other.is_null():
             return False
         elif isinstance(other, LLVMObject):
-            return (self._as_parameter_.contents.value ==
-                    other._as_parameter_.contents.value)
+            # As far as I can tell, the use of POINTER(c_void_p) is a workaround
+            # to avoid casting issue in ctypes. The underlying data is not a
+            # pointer to pointer, but an opaque pointer.
+            return (addressof(self._as_parameter_.contents) ==
+                    addressof(other._as_parameter_.contents))
         else:
             return False
 
