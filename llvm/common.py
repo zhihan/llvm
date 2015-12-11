@@ -25,10 +25,10 @@ __all__ = [
 ]
 
 class Opaque(Structure):
-    """Opaque structure for objects"""
+    """Opaque structure for LLVM objects"""
     pass
     
-c_object_p = POINTER(Opaque) 
+c_object_p = POINTER(Opaque)
 
 class LLVMObject(object):
     """Base class for objects that are backed by an LLVM data structure.
@@ -38,7 +38,7 @@ class LLVMObject(object):
     def __init__(self, ptr, ownable=True, disposer=None):
         assert isinstance(ptr, c_object_p)
 
-        self._ptr = self._as_parameter_ = ptr
+        self._as_parameter_ = ptr
 
         self._self_owned = True
         self._ownable = ownable

@@ -479,9 +479,13 @@ class Module(LLVMObject):
         LLVMObject.__init__(self, module, disposer=lib.LLVMDisposeModule)
 
     @classmethod
-    def CreateWithName(cls, module_id):
-        m = Module(lib.LLVMModuleCreateWithName(module_id))
-        Context.GetGlobalContext().take_ownership(m)
+    def CreateWithName(cls, module_id, context=None):
+        if not context:
+            m = Module(lib.LLVMModuleCreateWithName(module_id))
+            Context.GetGlobalContext().take_ownership(m)
+        else:
+            m = Module(lib.LLVMModuleCreateWithNameInContext(module_id, context))
+            context.take_ownership(m)
         return m
 
     @property
@@ -508,6 +512,9 @@ class Module(LLVMObject):
 
     def dump(self):
         lib.LLVMDumpModule(self)
+
+    def __str__(self):
+        return lib.LLVMPrintModuleToString(self)
 
     class __function_iterator(object):
         def __init__(self, module, reverse=False):
@@ -563,7 +570,8 @@ class Module(LLVMObject):
 
 
 class Function(Value):
-
+    """LLVM Function"""
+    
     def __init__(self, value):
         Value.__init__(self, value)
 
@@ -1020,6 +1028,10 @@ def register_library(library):
     library.LLVMModuleCreateWithName.argtypes = [c_char_p]
     library.LLVMModuleCreateWithName.restype = c_object_p
 
+    library.LLVMModuleCreateWithNameInContext.argtypes = [c_char_p,
+                                                          Context]
+    library.LLVMModuleCreateWithNameInContext.restype = c_object_p
+
     library.LLVMGetModuleContext.argtypes = [Module]
     library.LLVMGetModuleContext.restype = c_object_p
 
@@ -1041,6 +1053,9 @@ def register_library(library):
     library.LLVMDumpModule.argtypes = [Module]
     library.LLVMDumpModule.restype = None
 
+    library.LLVMPrintModuleToString.argtypes = [Module]
+    library.LLVMPrintModuleToString.restype = c_char_p
+    
     library.LLVMPrintModuleToFile.argtypes = [Module, c_char_p,
                                               POINTER(c_char_p)]
     library.LLVMPrintModuleToFile.restype = bool
