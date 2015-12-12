@@ -18,7 +18,7 @@ def create_timestwo_module():
     bldr = Builder.create(mod.context)
     bldr.position_at_end(bb)
     x = f.get_param(0)
-    two = Value.const_int(ty, 2L, True)
+    two = Value.const_int(ty, 2, True)
     y = bldr.mul(x, two, 'res')
     bldr.ret(y)    
     return (mod, f)
@@ -31,7 +31,7 @@ def create_two_module():
     bb = f.append_basic_block('body')
     bldr = Builder.create(mod.context)
     bldr.position_at_end(bb)
-    two = Value.const_int(ty, 2L, True)
+    two = Value.const_int(ty, 2, True)
     bldr.ret(two)    
     return mod
     
@@ -46,7 +46,7 @@ def create_timestwo_module_with_local():
     bldr.position_at_end(bb)
 
     two_ptr = bldr.alloca(ty, "two_ptr")
-    bldr.store(Value.const_int(ty, 2L, True), two_ptr)
+    bldr.store(Value.const_int(ty, 2, True), two_ptr)
     two = bldr.load(two_ptr, "two")
 
     x = f.get_param(0)
@@ -58,7 +58,7 @@ def create_timestwo_module_with_global():
     mod = Module.CreateWithName('module')
     ty = Type.int8(mod.context)
     k = Global.add(mod, ty, 'k')
-    k.set_initializer(Value.const_int(ty, 2L, True))
+    k.set_initializer(Value.const_int(ty, 2, True))
     
     ft = Type.function(ty, [ty], False)
     f = mod.add_function('timestwo', ft)
@@ -76,7 +76,7 @@ def create_global_load_save_module():
     mod = Module.CreateWithName('module')
     ty = Type.int8(mod.context)
     x = Global.add(mod, ty, 'x')
-    x.set_initializer(Value.const_int(ty, 0L, True))
+    x.set_initializer(Value.const_int(ty, 0, True))
 
     def create_store():
         ft = Type.function(Type.void(), [ty], False)
@@ -108,9 +108,9 @@ def create_global_load_save_array_module():
     ty = Type.int8(mod.context)
     array_ty = Type.array(ty, 2)
     x = Global.add(mod, array_ty, 'x')
-    v = Value.const_int(ty, 0L, True)
+    v = Value.const_int(ty, 0, True)
     ptr_ty = Type.int64(mod.context)
-    v0 = Value.const_int(ptr_ty, 0L, True)
+    v0 = Value.const_int(ptr_ty, 0, True)
     x.set_initializer(Value.const_array(ty, [v,v]))
 
     def create_store():
@@ -152,7 +152,7 @@ def create_timestwo_module_with_function():
     bb = f.append_basic_block('body')
     bldr.position_at_end(bb)
     x = f.get_param(0)
-    two = Value.const_int(ty, 2L, True)
+    two = Value.const_int(ty, 2, True)
     y = bldr.mul(x, two, 'res')
     bldr.ret(y)
 
@@ -177,7 +177,7 @@ def create_lessthanzero_module():
     bldr = Builder.create(mod.context)
     bldr.position_at_end(bb)
     x = f.get_param(0)
-    zero = Value.const_int(ty, 0L, True)
+    zero = Value.const_int(ty, 0, True)
     y = bldr.int_signed_lt(x, zero, 'res')
     bldr.ret(y)    
     return (mod, f)
@@ -198,7 +198,7 @@ def create_abs_module():
     bldr = Builder.create(mod.context)
     bldr.position_at_end(bb1)
     x = f.get_param(0)
-    zero = Value.const_int(ty, 0L, True)
+    zero = Value.const_int(ty, 0, True)
     c = bldr.int_signed_lt(x, zero, 'comp')
     bldr.conditional_branch(c, bbt, bbf)
 
@@ -236,17 +236,17 @@ def create_cumsum_module():
     bldr.position_at_end(bb_hdr)
     i = bldr.phi(ty, 'i')
     s = bldr.phi(ty, 's')
-    zero = Value.const_int(ty, 0L, True)
+    zero = Value.const_int(ty, 0, True)
     c = bldr.int_signed_lt(zero, i, 'comp')
     bldr.conditional_branch(c, bb_loop, bb_exit)
 
     bldr.position_at_end(bb_loop)
     s1 = bldr.add(s, i, 's1')
-    i1 = bldr.sub(i, Value.const_int(ty, 1L, True), 'i1')
+    i1 = bldr.sub(i, Value.const_int(ty, 1, True), 'i1')
     bldr.branch(bb_hdr)
 
     i.add_incoming([f.get_param(0), i1], [bb1, bb_loop])
-    s.add_incoming([Value.const_int(ty, 0L, True), s1], [bb1, bb_loop])
+    s.add_incoming([Value.const_int(ty, 0, True), s1], [bb1, bb_loop])
     
     bldr.position_at_end(bb_exit)
     bldr.ret(s)

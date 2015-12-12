@@ -19,6 +19,7 @@ from ctypes import c_bool
 from ctypes import c_char_p
 from ctypes import c_uint
 from ctypes import c_ulonglong
+from ctypes import c_longlong
 from ctypes import c_size_t
 from ctypes import c_int
 from ctypes import c_double
@@ -183,8 +184,8 @@ class MemoryBuffer(LLVMObject):
         memory = c_object_p()
         out = c_char_p(None)
 
-        result = lib.LLVMCreateMemoryBufferWithContentsOfFile(filename,
-                byref(memory), byref(out))
+        result = lib.LLVMCreateMemoryBufferWithContentsOfFile(
+            filename.encode(), byref(memory), byref(out))
 
         if result:
             raise Exception("Could not create memory buffer: %s" % out.value)
@@ -193,12 +194,12 @@ class MemoryBuffer(LLVMObject):
     @classmethod
     def from_string(cls, s):
         memory = lib.LLVMCreateMemoryBufferWithMemoryRangeCopy(
-            s, len(s), "inputBuffer")
+            s.encode(), len(s), b'inputBuffer')
         return MemoryBuffer(memory)
 
 
     def __str__(self):
-        return lib.LLVMGetBufferStart(self)
+        return lib.LLVMGetBufferStart(self).decode()
 
     def __len__(self):
         return lib.LLVMGetBufferSize(self)
@@ -218,7 +219,7 @@ class Type(LLVMObject):
     
     @property
     def name(self):
-        return lib.LLVMPrintTypeToString(self)
+        return lib.LLVMPrintTypeToString(self).decode()
 
     @classmethod
     def int8(cls, context=None):
@@ -324,15 +325,15 @@ class Type(LLVMObject):
         elems = pointer(c_object_p())
         count = self.num_elements()
         lib.LLVMGetStructElementTypes(self, elems)
-        return [Type(elems[i]) for i in xrange(count)]
+        return [Type(elems[i]) for i in range(count)]
 
     @staticmethod
     def create_named_structure(context, name):
         """Create a named (empty) structure"""
-        return Type(lib.LLVMStructCreateNamed(context, name))
+        return Type(lib.LLVMStructCreateNamed(context, name.encode()))
 
     def get_name(self):
-        return lib.LLVMGetStructName(self)
+        return lib.LLVMGetStructName(self).decode()
 
     def set_body(self, types, packed):
         count, type_array = util.to_c_array(types)
@@ -361,7 +362,7 @@ class Type(LLVMObject):
         dest = pointer(c_object_p())
         count = self.num_params()
         lib.LLVMGetParamTypes(self, dest)
-        return [Type(dest[i]) for i in xrange(count)]
+        return [Type(dest[i]) for i in range(count)]
 
     # Special types
     @staticmethod
@@ -409,8 +410,8 @@ class Value(LLVMObject):
 
     @classmethod
     def const_real(cls, ty, val):
-        if isinstance(val, basestring):
-            return Value(lib.LLVMConstRealOfString(ty, val))
+        if isinstance(val, str):
+            return Value(lib.LLVMConstRealOfString(ty, val.encode()))
         else:
             return Value(lib.LLVMConstReal(ty, val))
 
@@ -429,15 +430,15 @@ class Value(LLVMObject):
         ty = self.type
         n = ty.array_length()
         return [Value(lib.LLVMGetElementAsConstant(self, i))
-                for i in xrange(n)]
+                for i in range(n)]
     
     @property
     def name(self):
-        return lib.LLVMGetValueName(self)
+        return lib.LLVMGetValueName(self).decode()
 
     @name.setter
     def name(self, n):
-        lib.LLVMSetValueName(self, n)
+        lib.LLVMSetValueName(self, n.encode())
  
     @property
     def type(self):
@@ -450,7 +451,7 @@ class Value(LLVMObject):
         return lib.LLVMIsUndef(self)
 
     def __str__(self):
-        return lib.LLVMPrintValueToString(self)
+        return lib.LLVMPrintValueToString(self).decode()
 
     def dump(self):
         lib.LLVMDumpValue(self)
@@ -460,7 +461,7 @@ class Value(LLVMObject):
     def operands(self):
         n = lib.LLVMGetNumOperands(self)
         return [Value(lib.LLVMGetOperand(self, i))
-                for i in xrange(n)]
+                for i in range(n)]
 
     def set_operand(self, i, v):
         lib.LLVMSetOperand(self, i, v)
@@ -469,7 +470,7 @@ class Value(LLVMObject):
     def uses(self):
         n = lib.LLVMGetNumOperands(self)
         return [Use(lib.LLVMGetOperandUse(self, i))
-                for i in xrange(n)]
+                for i in range(n)]
 
 
 class Module(LLVMObject):
@@ -481,10 +482,12 @@ class Module(LLVMObject):
     @classmethod
     def CreateWithName(cls, module_id, context=None):
         if not context:
-            m = Module(lib.LLVMModuleCreateWithName(module_id))
+            m = Module(lib.LLVMModuleCreateWithName(module_id.encode()))
             Context.GetGlobalContext().take_ownership(m)
         else:
-            m = Module(lib.LLVMModuleCreateWithNameInContext(module_id, context))
+            m = Module(lib.LLVMModuleCreateWithNameInContext(
+                module_id.encode(),
+                context))
             context.take_ownership(m)
         return m
 
@@ -494,27 +497,27 @@ class Module(LLVMObject):
 
     @property
     def datalayout(self):
-        return lib.LLVMGetDataLayout(self)
+        return lib.LLVMGetDataLayout(self).decode()
 
     @datalayout.setter
     def datalayout(self, new_data_layout):
         """new_data_layout is a string."""
-        lib.LLVMSetDataLayout(self, new_data_layout)
+        lib.LLVMSetDataLayout(self, new_data_layout.encode())
 
     @property
     def target(self):
-        return lib.LLVMGetTarget(self)
+        return lib.LLVMGetTarget(self).decode()
 
     @target.setter
     def target(self, new_target):
         """new_target is a string."""
-        lib.LLVMSetTarget(self, new_target)
+        lib.LLVMSetTarget(self, new_target.encode())
 
     def dump(self):
         lib.LLVMDumpModule(self)
 
     def __str__(self):
-        return lib.LLVMPrintModuleToString(self)
+        return lib.LLVMPrintModuleToString(self).decode()
 
     class __function_iterator(object):
         def __init__(self, module, reverse=False):
@@ -528,7 +531,7 @@ class Module(LLVMObject):
         def __iter__(self):
             return self
 
-        def next(self):
+        def __next__(self):
             if not isinstance(self.function, Function):
                 raise StopIteration("")
             result = self.function
@@ -538,6 +541,9 @@ class Module(LLVMObject):
                 self.function = self.function.next
             return result
 
+        def next(self):
+            return self.__next__()
+        
     def __iter__(self):
         return Module.__function_iterator(self)
 
@@ -555,18 +561,22 @@ class Module(LLVMObject):
     def print_module_to_file(self, filename):
         out = c_char_p(None)
         # Result is inverted so 0 means everything was ok.
-        result = lib.LLVMPrintModuleToFile(self, filename, byref(out))
+        result = lib.LLVMPrintModuleToFile(
+            self, filename.encode(), byref(out))
         if result:
             raise RuntimeError("LLVM Error: %s" % out.value)
 
     def add_function(self, name, fn_ty):
-        return Function(lib.LLVMAddFunction(self, name, fn_ty))
+        return Function(lib.LLVMAddFunction(
+            self, name.encode(), fn_ty))
 
     def get_function(self, name):
-        return Function(lib.LLVMGetNamedFunction(self, name))
+        return Function(lib.LLVMGetNamedFunction(
+            self, name.encode()))
 
     def get_type(self, name):
-        return Type(lib.LLVMGetTypeByName(self, name))
+        return Type(lib.LLVMGetTypeByName(
+            self, name.encode()))
 
 
 class Function(Value):
@@ -607,7 +617,7 @@ class Function(Value):
         def __iter__(self):
             return self
 
-        def next(self):
+        def __next__(self):
             if not isinstance(self.bb, BasicBlock):
                 raise StopIteration("")
             result = self.bb
@@ -616,6 +626,9 @@ class Function(Value):
             else:
                 self.bb = self.bb.next
             return result
+
+        def next(self):
+            return self.__next__()
 
     def __iter__(self):
         return Function.__bb_iterator(self)
@@ -628,10 +641,10 @@ class Function(Value):
 
     def append_basic_block(self, name, context=None):
         if context is None:
-            return BasicBlock(lib.LLVMAppendBasicBlock(self, name))
+            return BasicBlock(lib.LLVMAppendBasicBlock(self, name.encode()))
         else:
             return BasicBlock(
-                lib.LLVMAppendBasicBlockInContext(context, self, name))
+                lib.LLVMAppendBasicBlockInContext(context, self, name.encode()))
 
     def get_param(self, idx):
         return Value(lib.LLVMGetParam(self, idx))
@@ -690,7 +703,7 @@ class BasicBlock(LLVMObject):
 
     @property
     def name(self):
-        return lib.LLVMGetValueName(self.__as_value())
+        return lib.LLVMGetValueName(self.__as_value()).decode()
 
     def dump(self):
         lib.LLVMDumpValue(self.__as_value())
@@ -707,7 +720,7 @@ class BasicBlock(LLVMObject):
         def __iter__(self):
             return self
 
-        def next(self):
+        def __next__(self):
             if not isinstance(self.inst, Instruction):
                 raise StopIteration("")
             result = self.inst
@@ -716,6 +729,9 @@ class BasicBlock(LLVMObject):
             else:
                 self.inst = self.inst.next
             return result
+
+        def next(self):
+            return self.__next__()
 
     def __iter__(self):
         return BasicBlock.__inst_iterator(self)
@@ -751,7 +767,7 @@ class PhiNode(Value):
         count = len(vals)
         val_array = (c_object_p * count)()
         block_array = (c_object_p * count)()
-        for i in xrange(count):
+        for i in range(count):
             val_array[i] = vals[i].from_param()
             block_array[i] = blocks[i].from_param()
         lib.LLVMAddIncoming(self, val_array, block_array, count)
@@ -761,12 +777,12 @@ class PhiNode(Value):
 
     def incoming_values(self):
         n = self.count_incoming()
-        return [Value(lib.LLVMGetIncomingValue(self, i)) for i in xrange(n)]
+        return [Value(lib.LLVMGetIncomingValue(self, i)) for i in range(n)]
 
     def incoming_blocks(self):
         n = self.count_incoming()
         return [BasicBlock(lib.LLVMGetIncomingBlock(self, i))
-                for i in xrange(n)]
+                for i in range(n)]
     
 class Context(LLVMObject):
 
@@ -1092,10 +1108,10 @@ def register_library(library):
     library.LLVMConstInt.restype = c_object_p
 
     library.LLVMConstIntGetSExtValue.argtypes = [Value]
-    library.LLVMConstIntGetSExtValue.restype = long
+    library.LLVMConstIntGetSExtValue.restype = c_longlong
 
     library.LLVMConstIntGetZExtValue.argtypes = [Value]
-    library.LLVMConstIntGetZExtValue.restype = long
+    library.LLVMConstIntGetZExtValue.restype = c_longlong
     
     library.LLVMGetValueName.argtypes = [Value]
     library.LLVMGetValueName.restype = c_char_p

@@ -72,7 +72,7 @@ class ExecutionEngine(LLVMObject):
     def run_function(self, fn, args):
         count = len(args)
         arg_array = (c_object_p * count)()
-        for i in xrange(count):
+        for i in range(count):
             arg_array[i] = args[i].from_param()
         return GenericValue(lib.LLVMRunFunction(self, fn, count, arg_array))
 

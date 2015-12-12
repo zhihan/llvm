@@ -37,19 +37,19 @@ class Builder(LLVMObject):
 
     def add(self, lhs, rhs, name):
         """Add"""
-        return Value(lib.LLVMBuildAdd(self, lhs, rhs, name))
+        return Value(lib.LLVMBuildAdd(self, lhs, rhs, name.encode()))
 
     def fadd(self, lhs, rhs, name):
         """Add (floating point)"""
-        return Value(lib.LLVMBuildFAdd(self, lhs, rhs, name))
+        return Value(lib.LLVMBuildFAdd(self, lhs, rhs, name.encode()))
 
     def sub(self, lhs, rhs, name):
         """Subtract"""
-        return Value(lib.LLVMBuildSub(self, lhs, rhs, name))
+        return Value(lib.LLVMBuildSub(self, lhs, rhs, name.encode()))
 
     def mul(self, lhs, rhs, name):
         """Multiply"""
-        return Value(lib.LLVMBuildMul(self, lhs, rhs, name))
+        return Value(lib.LLVMBuildMul(self, lhs, rhs, name.encode()))
 
     def ret(self, value):
         """Return"""
@@ -60,10 +60,10 @@ class Builder(LLVMObject):
     
     def alloca(self, ty, name):
         """Alloca"""
-        return Value(lib.LLVMBuildAlloca(self, ty, name))
+        return Value(lib.LLVMBuildAlloca(self, ty, name.encode()))
 
     def alloca_array(self, ty, val, name):
-        return Value(lib.LLVMBuildArrayAlloca(self, ty, val, name))
+        return Value(lib.LLVMBuildArrayAlloca(self, ty, val, name.encode()))
 
     def store(self, val, ptr):
         """Store the value in a pointer"""
@@ -71,7 +71,7 @@ class Builder(LLVMObject):
 
     def load(self, val, name):
         """Load the content of a pointer into a temp value"""
-        return Value(lib.LLVMBuildLoad(self, val, name))
+        return Value(lib.LLVMBuildLoad(self, val, name.encode()))
 
     def branch(self, dest):
         """Goto a block"""
@@ -81,32 +81,35 @@ class Builder(LLVMObject):
         return Value(lib.LLVMBuildCondBr(self, cond, true_branch, false_branch))
 
     def int_signed_lt(self, lhs, rhs, name):
-        return Value(lib.LLVMBuildICmp(self, IntPredicate.SLT.value, lhs, rhs, name))
+        return Value(
+            lib.LLVMBuildICmp(
+                self, IntPredicate.SLT.value, lhs, rhs, name.encode()))
 
     def neg(self, val, name):
-        return Value(lib.LLVMBuildNeg(self, val, name))
+        return Value(lib.LLVMBuildNeg(self, val, name.encode()))
 
     def phi(self, ty, name):
-        return PhiNode(lib.LLVMBuildPhi(self, ty, name))
+        return PhiNode(lib.LLVMBuildPhi(self, ty, name.encode()))
 
     def call(self, fn, args, name):
         count, args_array = util.to_c_array(args)
-        return Value(lib.LLVMBuildCall(self, fn, args_array,
-                                       count, name))
+        return Value(
+            lib.LLVMBuildCall(
+                self, fn, args_array, count, name.encode()))
     
     def insert_value(self, arr, val, idx, name):
         return Value(lib.LLVMBuildInsertValue(
-            self, arr, val, idx, name))
+            self, arr, val, idx, name.encode()))
     
     def extract_value(self, arr, idx, name):
         return Value(lib.LLVMBuildExtractValue(
-            self, arr, idx, name))
+            self, arr, idx, name.encode()))
 
     def gep(self, ptr, indices, name):
         """getelementptr instruction"""
         count, idx_array = util.to_c_array(indices)
         r = Value(lib.LLVMBuildGEP(
-            self, ptr, idx_array, count, name)) 
+            self, ptr, idx_array, count, name.encode())) 
         return r
     
     def position_at_end(self, bb):

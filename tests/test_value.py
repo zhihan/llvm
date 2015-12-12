@@ -28,27 +28,27 @@ class ValueTest(unittest.TestCase):
         ty = Type.int8()
         v = Value.const_int(ty, 3, True)
 
-        self.assertEquals(3L, v.get_signext_value())
-        self.assertEquals('i8 3', str(v))
-        self.assertEquals('i8', v.type.name)
+        self.assertEqual(3, v.get_signext_value())
+        self.assertEqual('i8 3', str(v))
+        self.assertEqual('i8', v.type.name)
         self.assertFalse(v.is_undef())
 
     def testConstInt8Array(self):
         ty = Type.int8()
-        v = Value.const_int(ty, 3L, True)
+        v = Value.const_int(ty, 3, True)
         arr = Value.const_array(ty, [v, v])
 
         arr_ty = arr.type
-        self.assertEqual(2L, arr_ty.array_length())
+        self.assertEqual(2, arr_ty.array_length())
         self.assertEqual([v, v], arr.array_elements())
          
         
     def testConstantCannotBeNamed(self):
         ty = Type.int8()
         v = Value.const_int(ty, 3, True)
-        self.assertEquals('', v.name)
+        self.assertEqual('', v.name)
         v.name = 'something'
-        self.assertEquals('', v.name)
+        self.assertEqual('', v.name)
         
     def testName(self):
         # constants cannot be named. 

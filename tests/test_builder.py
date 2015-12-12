@@ -14,29 +14,29 @@ class InstructionBuilderTest(unittest.TestCase):
 
     def testAdd(self):
         ty = Type.int8()
-        a = Value.const_int(ty, 1L, True)
-        b = Value.const_int(ty, 1L, True)
+        a = Value.const_int(ty, 1, True)
+        b = Value.const_int(ty, 1, True)
         bldr = Builder.create()
         c = bldr.add(a, b, "tmp1")
 
-        self.assertEqual(2L, c.get_signext_value())
+        self.assertEqual(2, c.get_signext_value())
 
     def testAddGlobal(self):
         mod = Module.CreateWithName('module')
         ty = Type.int8(context=mod.context)
-        a = Value.const_int(ty, 1L, True)
+        a = Value.const_int(ty, 1, True)
         g = Global.add(mod, ty, 'x')
-        g.set_initializer(Value.const_int(ty, 4L, True))
+        g.set_initializer(Value.const_int(ty, 4, True))
         bldr = Builder.create()
         c = bldr.add(g.get_initializer(), a, 'tmp1')
-        self.assertEqual(5L, c.get_signext_value())
+        self.assertEqual(5, c.get_signext_value())
 
     def testAddGlobalVal(self):
         mod = Module.CreateWithName('module')
         ty = Type.int8(context=mod.context)
-        a = Value.const_int(ty, 1L, True)
+        a = Value.const_int(ty, 1, True)
         g = Global.add(mod, ty, 'x')
-        g.set_initializer(Value.const_int(ty, 4L, True))
+        g.set_initializer(Value.const_int(ty, 4, True))
         g.set_const(True)
 
         t = g.type
@@ -78,22 +78,22 @@ class InstructionBuilderTest(unittest.TestCase):
 
         x, _ = a.get_double_value()
         y, _ = b.get_double_value()
-        self.assertEquals(x, y)
+        self.assertEqual(x, y)
 
     def testIntSLT(self):
         ty = Type.int8()
-        a = Value.const_int(ty, 1L, True)
-        b = Value.const_int(ty, 2L, True)
+        a = Value.const_int(ty, 1, True)
+        b = Value.const_int(ty, 2, True)
         bldr = Builder.create()
 
         c = bldr.int_signed_lt(a, b, "tmp1")
-        self.assertEqual(1L, c.get_zeroext_value())
+        self.assertEqual(1, c.get_zeroext_value())
 
         d = bldr.int_signed_lt(b, a, "tmp2")
-        self.assertEqual(0L, d.get_zeroext_value())
+        self.assertEqual(0, d.get_zeroext_value())
 
         e = bldr.int_signed_lt(a, a, "tmp3")
-        self.assertEqual(0L, e.get_zeroext_value())
+        self.assertEqual(0, e.get_zeroext_value())
 
     def testAlloca(self):
         ty = Type.int8()
@@ -117,8 +117,8 @@ class InstructionBuilderTest(unittest.TestCase):
 
     def testInsertValue(self):
         ty = Type.int8()
-        v = Value.const_int(ty, 1L, True)
-        n = Value.const_int(ty, 2L, True)
+        v = Value.const_int(ty, 1, True)
+        n = Value.const_int(ty, 2, True)
         arr_ty = Type.array(ty, 2)
         bldr = Builder.create()
 
@@ -138,7 +138,7 @@ class InstructionBuilderTest(unittest.TestCase):
         arr_ty = Type.array(ty, 2)
         
         a = bldr.alloca(arr_ty, 'a')
-        offset = Value.const_int(ptr_ty, 0L, True)
+        offset = Value.const_int(ptr_ty, 0, True)
         b = bldr.gep(a, [offset, offset], 'gep')
         self.assertEqual('  %gep = getelementptr [2 x i64]* %a, i64 0, i64 0',
                          str(b))

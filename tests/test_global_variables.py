@@ -23,8 +23,11 @@ class GlobalTest(unittest.TestCase):
         ty = Type.int8()
         mod = Module.CreateWithName('module')
         g = Global.add(mod, ty, 'x')
-        g.set_initializer(Value.const_int(ty, 4L, True))
+        g.set_initializer(Value.const_int(ty, 4, True))
         v = g.get_initializer()
 
-        self.assertEqual(4L, v.get_signext_value())
+        self.assertEqual(4, v.get_signext_value())
+    
+if __name__ == '__main__':
+    unittest.main()
     

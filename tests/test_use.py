@@ -23,7 +23,7 @@ class UseTest(unittest.TestCase):
         
     def testUse(self):
         x = self.f.get_param(0)
-        two = Value.const_int(self.ty, 2L, True)
+        two = Value.const_int(self.ty, 2, True)
         y = self.bldr.mul(x, two, 'res')
         
         use = Use.first(x)
@@ -33,7 +33,7 @@ class UseTest(unittest.TestCase):
 
     def testOperands(self):
         x = self.f.get_param(0)
-        two = Value.const_int(self.ty, 2L, True)
+        two = Value.const_int(self.ty, 2, True)
         y = self.bldr.mul(x, two, 'res')
 
         ops = y.operands

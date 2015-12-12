@@ -15,12 +15,12 @@ class ModuleTest(unittest.TestCase):
         ft = Type.function(ty, [ty], False)
         f = mod.add_function('timestwo', ft)
         
-        self.assertEquals('timestwo', f.name)
+        self.assertEqual('timestwo', f.name)
         f1 = mod.first
-        self.assertEquals('timestwo', f1.name)
+        self.assertEqual('timestwo', f1.name)
 
         fcns = [fn for fn in mod]
-        self.assertEquals(1, len(fcns))
+        self.assertEqual(1, len(fcns))
 
         self.assertTrue('timestwo' in str(mod))
 

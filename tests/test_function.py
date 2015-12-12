@@ -11,7 +11,7 @@ from llvm.core import PhiNode
 from llvm.instruction_builder import Builder
 from llvm.global_variables import Global
 
-from testing import *
+from tests.testing import *
         
 class ModuleTest(unittest.TestCase):
     def setUp(self):
@@ -23,7 +23,7 @@ class ModuleTest(unittest.TestCase):
         ft = Type.function(ty, [ty], False)
         f = mod.add_function('timestwo', ft)
         bb = f.append_basic_block('body')
-        self.assertEquals('body', bb.name)
+        self.assertEqual('body', bb.name)
 
     def testCreateFunction(self):
         mod, f = create_timestwo_module()
@@ -31,20 +31,20 @@ class ModuleTest(unittest.TestCase):
         self.assertFalse(f.verify(
             VerifierFailureActionTy.PrintMessageAction.value))
         
-        self.assertEquals(mod.first, f)
-        self.assertEquals(mod.last, f)
+        self.assertEqual(mod.first, f)
+        self.assertEqual(mod.last, f)
         
         x = [fn for fn in mod]
-        self.assertEquals([f], x)
+        self.assertEqual([f], x)
 
         x = [fn for fn in reversed(mod)]
-        self.assertEquals([f], x)
+        self.assertEqual([f], x)
 
         bbs = [b for b in f]
-        self.assertEquals(1, len(bbs))
+        self.assertEqual(1, len(bbs))
 
         ins = [i for i in bbs[0]]
-        self.assertEquals(2, len(ins))
+        self.assertEqual(2, len(ins))
 
     def test_phi(self):
         mod, _  = create_abs_module()

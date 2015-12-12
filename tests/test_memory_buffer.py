@@ -16,7 +16,6 @@ class MemoryBufferTest(unittest.TestCase):
 
     def testFromFile(self):
         filename = __file__
-        print(filename)
         mem = MemoryBuffer.fromFile(filename)
 
         self.assertTrue(len(mem) > 10)

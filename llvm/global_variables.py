@@ -21,11 +21,11 @@ class Global(Value):
 
     @classmethod
     def add(cls, module, ty, name):
-        return Global(lib.LLVMAddGlobal(module, ty, name))
+        return Global(lib.LLVMAddGlobal(module, ty, name.encode()))
 
     @classmethod
     def get(cls, module, name):
-        return Global(lib.LLVMGetNamedGlobal(module, name))
+        return Global(lib.LLVMGetNamedGlobal(module, name.encode()))
 
     def set_initializer(self, value):
         lib.LLVMSetInitializer(self, value)
