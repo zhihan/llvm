@@ -332,7 +332,7 @@ class Type(LLVMObject):
         """Create a named (empty) structure"""
         return Type(lib.LLVMStructCreateNamed(context, name.encode()))
 
-    def get_name(self):
+    def struct_name(self):
         return lib.LLVMGetStructName(self).decode()
 
     def set_body(self, types, packed):
@@ -455,6 +455,9 @@ class Value(LLVMObject):
 
     def dump(self):
         lib.LLVMDumpValue(self)
+
+    def replace_uses_with(self, new_val):
+        lib.LLVMReplaceAllUsesWith(self, new_val)
 
     # Related to User
     @property

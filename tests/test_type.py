@@ -131,7 +131,7 @@ class TypeTest(unittest.TestCase):
 
     def testCreateNamedStruct(self):
         ty = Type.create_named_structure(self.global_context, "mystruct")
-        self.assertEqual('mystruct', ty.get_name())
+        self.assertEqual('mystruct', ty.struct_name())
 
         el = Type.int8()
         ty.set_body([el, el], True)
@@ -167,6 +167,21 @@ class TypeTest(unittest.TestCase):
 
         t = Type.label(context=self.global_context)
         self.assertEqual('label', t.name)
+
+    def testCreateFunctionType(self):
+        ty = Type.int8()
+        ft = Type.function(ty, [ty], False)
+
+        self.assertFalse(ft.is_function_vararg())
+        self.assertEqual(ty, ft.return_type())
+        self.assertEqual(1, ft.num_params())
+
+        self.assertEqual([ty], ft.param_types())
+
+        f2 = Type.function(ty, [ty], True)
+        self.assertTrue(f2.is_function_vararg())
+        self.assertEqual([ty], f2.param_types())
+        self.assertEqual(1, f2.num_params())
         
 if __name__ == '__main__':
     unittest.main()
