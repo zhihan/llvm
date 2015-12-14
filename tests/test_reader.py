@@ -12,8 +12,8 @@ def generate_bitcode(filename):
     base, _ = filename.split('.')
     bcfile = base + '.bc'
     if not path.isfile(bcfile):
-        cmd = ['clang', '-c', filename, '-emit-llvm']
-        subprocess.Popen(cmd)
+        cmd = ['clang', '-c', filename, '-emit-llvm', '-o', bcfile]
+        subprocess.Popen(cmd).communicate()
     
 
 class ReaderTest(unittest.TestCase):
