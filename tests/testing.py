@@ -1,9 +1,15 @@
 """Test module to generate simple LLVM modules."""
+import subprocess
+from os import path
+
 from llvm.core import Module
 from llvm.core import Type
 from llvm.core import Function
 from llvm.core import Value
 from llvm.core import VerifierFailureActionTy
+from llvm.core import MemoryBuffer
+
+from llvm import bit_reader
 
 from llvm.instruction_builder import Builder
 
@@ -251,3 +257,21 @@ def create_cumsum_module():
     bldr.position_at_end(bb_exit)
     bldr.ret(s)
     return (mod, f)
+
+def generate_bitcode(filename):
+    """Call clang to generate bitcode if not found on disc"""
+    base, _ = filename.split('.')
+    bcfile = base + '.bc'
+    if not path.isfile(bcfile):
+        cmd = ['clang', '-c', filename, '-emit-llvm', '-o', bcfile]
+        subprocess.Popen(cmd).communicate()
+    
+    return
+
+def parse_bitcode(source):
+    p = path.dirname(__file__)
+    generate_bitcode(path.join(p, source))
+    b, _  = source.split('.')
+    mem = MemoryBuffer.fromFile(path.join(p, b + '.bc'))
+    return bit_reader.parse_bitcode(mem)
+                                

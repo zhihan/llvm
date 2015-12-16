@@ -6,6 +6,8 @@ from . import enumerations
 from .core import MemoryBuffer
 from .core import Module
 from .core import OpCode
+from .core import Context
+
 from ctypes import POINTER
 from ctypes import byref
 from ctypes import c_char_p
@@ -20,7 +22,9 @@ def parse_bitcode(mem_buffer):
     result = lib.LLVMParseBitcode(mem_buffer, byref(module), byref(out))
     if result:
         raise RuntimeError('LLVM Error: %s' % out.value)
-    m = Module(module)
+    ctx = Context.GetGlobalContext()
+    m = Module(module, context=ctx)
+    ctx.take_ownership(m)
     m.take_ownership(mem_buffer)
     return m
 

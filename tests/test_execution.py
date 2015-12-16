@@ -146,6 +146,15 @@ class ExecutionTest(unittest.TestCase):
         x = ee.run_function(load, [offset])
         self.assertEqual(4, x.to_int(True))
 
+    def testTimesTwoC(self):
+        mod = parse_bitcode('timestwo.c')
+        ee = ExecutionEngine.create_interpreter(mod)
+        ty = Type.int32(context=mod.context)
+        f = mod.get_function('timestwo')
+        x = GenericValue.of_int(ty, 3, True)
+        y = ee.run_function(f, [x])
+        
+        self.assertEqual(6, y.to_int(True))
 
 if __name__ == '__main__':
     unittest.main()
