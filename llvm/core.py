@@ -470,11 +470,32 @@ class Value(LLVMObject):
         lib.LLVMSetOperand(self, i, v)
 
     @property
-    def uses(self):
+    def operand_uses(self):
         n = lib.LLVMGetNumOperands(self)
         return [Use(lib.LLVMGetOperandUse(self, i))
                 for i in range(n)]
 
+    class __use_iterator__(object):
+        """An iterator that iterates through the uses"""
+        def __init__(self, value):
+            self.current = Use.first(value)
+
+        def __iter__(self):
+            return self
+
+        def __next__(self):
+            if not isinstance(self.current, Use):
+                raise StopIteration("")
+            result = self.current
+            self.current = Use.next
+            return result
+
+        def next(self):
+            return self.__next__()
+
+    def uses_iter(self):
+        return Value.__use_iterator__(self)
+    
 
 class Module(LLVMObject):
     """Represents the top-level structure of an llvm program in an opaque object."""
@@ -656,6 +677,7 @@ class Function(Value):
         return lib.LLVMVerifyFunction(self, action)
 
 class Use(LLVMObject):
+    """Wrapper for LLVMUseRef"""
     def __init__(self, ptr):
         LLVMObject.__init__(self, ptr)
 

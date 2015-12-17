@@ -31,6 +31,9 @@ class UseTest(unittest.TestCase):
         self.assertEqual(y, use.user)
         self.assertEqual(x, use.used_value)
 
+        uses = list(x.uses_iter())
+        self.assertEqual([use], uses)
+        
     def testOperands(self):
         x = self.f.get_param(0)
         two = Value.const_int(self.ty, 2, True)
@@ -40,7 +43,7 @@ class UseTest(unittest.TestCase):
         self.assertEqual(2, len(ops))
         self.assertEqual([x, two], ops)
 
-        uses = y.uses
+        uses = y.operand_uses
         self.assertEqual(2, len(uses))
         self.assertEqual(x, uses[0].used_value)
         self.assertEqual(y, uses[0].user)
