@@ -398,6 +398,14 @@ class Value(LLVMObject):
     def is_null(self):
         return lib.LLVMIsNull(self)
 
+    @staticmethod
+    def all_ones(ty):
+        return Value(lib.LLVMConstAllOnes(ty))
+
+    @staticmethod
+    def null_ptr(ty):
+        return Value(lib.LLVMConstPointerNull(ty))
+
     @classmethod
     def const_int(cls, ty, val, sign_extend):
         return Value(lib.LLVMConstInt(ty, val, sign_extend))
@@ -1129,6 +1137,12 @@ def register_library(library):
     library.LLVMIsNull.argtypes = [Value]
     library.LLVMIsNull.restype = bool
 
+    library.LLVMConstAllOnes.argtypes = [Type]
+    library.LLVMConstAllOnes.restype = c_object_p
+
+    library.LLVMConstPointerNull.argtypes = [Type]
+    library.LLVMConstPointerNull.restype = c_object_p
+    
     library.LLVMConstInt.argtypes = [Type, c_ulonglong, c_bool]
     library.LLVMConstInt.restype = c_object_p
 

@@ -17,6 +17,18 @@ class ValueTest(unittest.TestCase):
 
         self.assertTrue(v.is_null())
 
+    def testAllOnesInt8(self):
+        ty = Type.int8()
+        v = Value.all_ones(ty)
+
+        self.assertEqual(-1, v.get_signext_value())
+
+    def testNullPtr(self):
+        ty = Type.int8()
+        v = Value.null_ptr(Type.pointer(ty))
+
+        self.assertTrue(v.is_null())
+
     def testTypeOfInt8(self):
         ty = Type.int8()
         v = Value.const_int(ty, 2, True)
