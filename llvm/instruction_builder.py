@@ -85,6 +85,21 @@ class Builder(LLVMObject):
             lib.LLVMBuildICmp(
                 self, IntPredicate.SLT.value, lhs, rhs, name.encode()))
 
+    def int_signed_gt(self, lhs, rhs, name):
+        return Value(
+            lib.LLVMBuildICmp(
+                self, IntPredicate.SGT.value, lhs, rhs, name.encode()))
+
+    def int_eq(self, lhs, rhs, name):
+        return Value(
+            lib.LLVMBuildICmp(
+                self, IntPredicate.EQ.value, lhs, rhs, name.encode()))
+    
+    def int_ne(self, lhs, rhs, name):
+        return Value(
+            lib.LLVMBuildICmp(
+                self, IntPredicate.NE.value, lhs, rhs, name.encode()))
+
     def neg(self, val, name):
         return Value(lib.LLVMBuildNeg(self, val, name.encode()))
 

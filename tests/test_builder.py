@@ -95,6 +95,45 @@ class InstructionBuilderTest(unittest.TestCase):
         e = bldr.int_signed_lt(a, a, "tmp3")
         self.assertEqual(0, e.get_zeroext_value())
 
+    def testIntSGT(self):
+        ty = Type.int8()
+        a = Value.const_int(ty, 1, True)
+        b = Value.const_int(ty, 2, True)
+        bldr = Builder.create()
+
+        c = bldr.int_signed_gt(a, b, "tmp1")
+        self.assertEqual(0, c.get_zeroext_value())
+
+        d = bldr.int_signed_gt(b, a, "tmp2")
+        self.assertEqual(1, d.get_zeroext_value())
+
+        e = bldr.int_signed_gt(a, a, "tmp3")
+        self.assertEqual(0, e.get_zeroext_value())
+
+    def testIntEQ(self):
+        ty = Type.int8()
+        a = Value.const_int(ty, 1, True)
+        b = Value.const_int(ty, 2, True)
+        bldr = Builder.create()
+
+        c = bldr.int_eq(a, b, "tmp1")
+        self.assertEqual(0, c.get_zeroext_value())
+
+        d = bldr.int_eq(a, a, "tmp3")
+        self.assertEqual(1, d.get_zeroext_value())
+
+    def testIntNE(self):
+        ty = Type.int8()
+        a = Value.const_int(ty, 1, True)
+        b = Value.const_int(ty, 2, True)
+        bldr = Builder.create()
+
+        c = bldr.int_ne(a, b, "tmp1")
+        self.assertEqual(1, c.get_zeroext_value())
+
+        d = bldr.int_ne(a, a, "tmp3")
+        self.assertEqual(0, d.get_zeroext_value())
+
     def testAlloca(self):
         ty = Type.int8()
         bldr = Builder.create()
