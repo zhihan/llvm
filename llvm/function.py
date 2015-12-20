@@ -36,6 +36,8 @@ class Function(Value):
 
     @property
     def last(self):
+        from .basic_block import BasicBlock
+        
         b = lib.LLVMGetLastBasicBlock(self)
         return b and BasicBlock(b)
 

@@ -3,6 +3,7 @@ import unittest
 from llvm.core import Context
 from llvm.core import Type
 from llvm.core import TypeKind
+from llvm.core import Module
 
 class TypeTest(unittest.TestCase):
     def setUp(self):
@@ -182,6 +183,18 @@ class TypeTest(unittest.TestCase):
         self.assertTrue(f2.is_function_vararg())
         self.assertEqual([ty], f2.param_types())
         self.assertEqual(1, f2.num_params())
+
+    def testCreateNamedStructInMod(self):
+        ctx = Context()
+        mod = Module.CreateWithName('mod', ctx)
+        ty = Type.create_named_structure(mod.context,
+                                         'mystruct')
+        el = Type.int8(context=mod.context)
+        ty.set_body([el, el], True)
+        t = mod.get_type('mystruct')
+        
+        self.assertEqual(ty, t)
+
         
 if __name__ == '__main__':
     unittest.main()

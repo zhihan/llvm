@@ -43,7 +43,13 @@ class ModuleTest(unittest.TestCase):
         bbs = [b for b in f]
         self.assertEqual(1, len(bbs))
 
+        bbs = [b for b in reversed(f)]
+        self.assertEqual(1, len(bbs))
+
         ins = [i for i in bbs[0]]
+        self.assertEqual(2, len(ins))
+
+        ins = [i for i in reversed(bbs[0])]
         self.assertEqual(2, len(ins))
 
     def test_phi(self):
