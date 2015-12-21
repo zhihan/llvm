@@ -7,7 +7,7 @@ lib = get_library()
 
 
 class Context(LLVMObject):
-
+    """The top-level container for all LLVM global data."""
     def __init__(self, context=None):
         if context is None:
             context = lib.LLVMContextCreate()
