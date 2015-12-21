@@ -1,4 +1,5 @@
 import unittest
+import sys
 
 from llvm.core import Context
 from llvm.core import Type
@@ -9,14 +10,22 @@ from llvm.global_variables import Global
 
 class ValueTest(unittest.TestCase):
     def setUp(self):
-        self.module = Module.CreateWithName('module')
+        self.context = Context()
+        self.module = Module.CreateWithName('module', context=self.context)
 
     def testNullInt8(self):
         ty = Type.int8()
         v = Value.null(ty)
 
         self.assertTrue(v.is_null())
+        v.dump()
 
+    def testUndefInt8(self):
+        ty = Type.int8()
+        v = Value.undef(ty)
+
+        self.assertTrue(v.is_undef())
+    
     def testAllOnesInt8(self):
         ty = Type.int8()
         v = Value.all_ones(ty)
@@ -35,6 +44,12 @@ class ValueTest(unittest.TestCase):
 
         t = v.type
         self.assertEqual('i8', t.name)
+
+    def testZeroExt(self):
+        ty = Type.int8()
+        v = Value.all_ones(ty)
+
+        self.assertEqual(255, v.get_zeroext_value())
 
     def testConstInt8(self):
         ty = Type.int8()
@@ -72,7 +87,6 @@ class ValueTest(unittest.TestCase):
         self.assertEqual('one', v.name)
         self.assertTrue(v.is_constant())
         self.assertFalse(v.is_undef())
-
 
 
 if __name__ == "__main__":
