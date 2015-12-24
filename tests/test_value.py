@@ -18,6 +18,7 @@ class ValueTest(unittest.TestCase):
         v = Value.null(ty)
 
         self.assertTrue(v.is_null())
+        self.assertTrue(v.is_const_int())
         v.dump()
 
     def testUndefInt8(self):
@@ -37,6 +38,7 @@ class ValueTest(unittest.TestCase):
         v = Value.null_ptr(Type.pointer(ty))
 
         self.assertTrue(v.is_null())
+        self.assertFalse(v.is_const_int())
 
     def testTypeOfInt8(self):
         ty = Type.int8()

@@ -64,6 +64,10 @@ class Value(LLVMObject):
         """Get the zero extended value of the integer constant value."""
         return lib.LLVMConstIntGetZExtValue(self)
 
+    def is_const_int(self):
+        """Test whether the value is const int."""
+        return bool(lib.LLVMIsAConstantInt(self))
+
     @staticmethod
     def const_real(ty, val):
         """Obtain a constant for a floating point value."""
@@ -79,23 +83,28 @@ class Value(LLVMObject):
         return (res, precision_lost)
 
     @staticmethod
-    def const_array(ty, vals, packed=False):
+    def const_array(ty, vals):
+        """Create a ConstantArray from values."""
         count, val_array = util.to_c_array(vals)
         return Value(lib.LLVMConstArray(
-            ty, val_array, count, packed))
+            ty, val_array, count))
 
     def array_elements(self):
+        """Get the elements of the constant array and return as a list."""
         ty = self.type
         n = ty.array_length()
         return [Value(lib.LLVMGetElementAsConstant(self, i))
                 for i in range(n)]
     
+         
     @property
     def name(self):
+        """The string name of a value."""
         return lib.LLVMGetValueName(self).decode()
 
     @name.setter
     def name(self, n):
+        """The string name of a value."""
         lib.LLVMSetValueName(self, n.encode())
  
     @property
@@ -112,22 +121,26 @@ class Value(LLVMObject):
         return lib.LLVMIsUndef(self)
 
     def __str__(self):
+        """Return a string representation of the value."""
         return lib.LLVMPrintValueToString(self).decode()
 
     def dump(self):
+        """Dump a representation of a value to stderr."""
         lib.LLVMDumpValue(self)
 
     def replace_uses_with(self, new_val):
+        """Replace all uses of a value with another one."""
         lib.LLVMReplaceAllUsesWith(self, new_val)
 
-    # Related to User
     @property
     def operands(self):
+        """Obtain a list of the operands"""
         n = lib.LLVMGetNumOperands(self)
         return [Value(lib.LLVMGetOperand(self, i))
                 for i in range(n)]
 
     def set_operand(self, i, v):
+        """Set an operand at a specific index in a User value"""
         lib.LLVMSetOperand(self, i, v)
 
     @property
@@ -227,8 +240,7 @@ def register_library(library):
 
     library.LLVMConstArray.argtypes = [Type,
                                        ctypes.POINTER(c_object_p),
-                                       ctypes.c_uint,
-                                       ctypes.c_bool]
+                                       ctypes.c_uint]
     library.LLVMConstArray.restype = c_object_p
 
     library.LLVMGetElementAsConstant.argtypes = [Value, ctypes.c_uint]
@@ -263,7 +275,6 @@ def register_library(library):
     library.LLVMGetOperandUse.argtypes = [Value, ctypes.c_uint]
     library.LLVMGetOperandUse.restype = c_object_p
 
-    # Use
     library.LLVMGetFirstUse.argtypes = [Value]
     library.LLVMGetFirstUse.restype = c_object_p
 
@@ -275,6 +286,9 @@ def register_library(library):
 
     library.LLVMGetUser.argtypes = [Use]
     library.LLVMGetUser.restype = c_object_p
+
+    library.LLVMIsAConstantInt.argtypes = [Value]
+    library.LLVMIsAConstantInt.restype = c_object_p
 
 
 register_library(lib)
