@@ -70,7 +70,8 @@ class ValueTest(unittest.TestCase):
         arr_ty = arr.type
         self.assertEqual(2, arr_ty.array_length())
         self.assertEqual([v, v], arr.array_elements())
-         
+        self.assertFalse(v.is_const_array())
+        self.assertTrue(arr.is_const_array())
         
     def testConstantCannotBeNamed(self):
         ty = Type.int8()

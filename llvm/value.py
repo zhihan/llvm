@@ -95,7 +95,9 @@ class Value(LLVMObject):
         n = ty.array_length()
         return [Value(lib.LLVMGetElementAsConstant(self, i))
                 for i in range(n)]
-    
+
+    def is_const_array(self):
+        return bool(lib.LLVMIsAConstantDataArray(self))
          
     @property
     def name(self):
@@ -290,5 +292,7 @@ def register_library(library):
     library.LLVMIsAConstantInt.argtypes = [Value]
     library.LLVMIsAConstantInt.restype = c_object_p
 
+    library.LLVMIsAConstantDataArray.argtypes = [Value]
+    library.LLVMIsAConstantDataArray.restype = c_object_p
 
 register_library(lib)
