@@ -3,6 +3,7 @@ from .common import c_object_p
 from .common import get_library
 
 from .type import Type
+from .context import Context
 from . import util
 
 import ctypes
@@ -97,7 +98,23 @@ class Value(LLVMObject):
                 for i in range(n)]
 
     def is_const_array(self):
+        """Whether the referred value is a const array"""
         return bool(lib.LLVMIsAConstantDataArray(self))
+
+    @staticmethod
+    def const_struct(vals, packed=False, context=None):
+        """Create a constant struct."""
+        count, val_array = util.to_c_array(vals)
+        if context is None:
+            return Value(lib.LLVMConstStruct(val_array, count, packed))
+        else:
+            return Value(lib.LLVMConstStructInContext(context,
+                                                      val_array,
+                                                      count,
+                                                      packed))
+
+    def is_const_struct(self):
+        return bool(lib.LLVMIsAConstantStruct(self))
          
     @property
     def name(self):
@@ -257,6 +274,17 @@ def register_library(library):
     library.LLVMIsUndef.argtypes = [Value]
     library.LLVMIsUndef.restype = bool
 
+    library.LLVMConstStruct.argtypes = [ctypes.POINTER(c_object_p),
+                                        ctypes.c_uint,
+                                        ctypes.c_bool]
+    library.LLVMConstStruct.restype = c_object_p
+    
+    library.LLVMConstStructInContext.argtypes = [Context,
+                                                 ctypes.POINTER(c_object_p),
+                                                 ctypes.c_uint,
+                                                 ctypes.c_bool]
+    library.LLVMConstStructInContext.restype = c_object_p
+
     library.LLVMPrintValueToString.argtypes = [Value]
     library.LLVMPrintValueToString.restype = ctypes.c_char_p
 
@@ -294,5 +322,8 @@ def register_library(library):
 
     library.LLVMIsAConstantDataArray.argtypes = [Value]
     library.LLVMIsAConstantDataArray.restype = c_object_p
+
+    library.LLVMIsAConstantStruct.argtypes = [Value]
+    library.LLVMIsAConstantStruct.restype = c_object_p
 
 register_library(lib)

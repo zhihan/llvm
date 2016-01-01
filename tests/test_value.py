@@ -72,6 +72,15 @@ class ValueTest(unittest.TestCase):
         self.assertEqual([v, v], arr.array_elements())
         self.assertFalse(v.is_const_array())
         self.assertTrue(arr.is_const_array())
+
+    def testStruct(self):
+        ty = Type.int8()
+        sty = Type.structure([ty, ty], False)
+        x = Value.const_int(ty, 1, True)
+        y = Value.const_int(ty, 2, True)
+        xy = Value.const_struct([x, y])
+
+        self.assertTrue(xy.is_const_struct())
         
     def testConstantCannotBeNamed(self):
         ty = Type.int8()
