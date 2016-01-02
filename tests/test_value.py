@@ -81,6 +81,9 @@ class ValueTest(unittest.TestCase):
         xy = Value.const_struct([x, y])
 
         self.assertTrue(xy.is_const_struct())
+        [x_, y_] = xy.operands
+        self.assertEqual(x, x_)
+        self.assertEqual(y, y_)
         
     def testConstantCannotBeNamed(self):
         ty = Type.int8()
