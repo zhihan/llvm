@@ -29,48 +29,51 @@ class Type(LLVMObject):
 
     @property
     def kind(self):
-        from .core import TypeKind
-        
         """Return the kind of the type"""
+        from .core import TypeKind
         return TypeKind.from_value(lib.LLVMGetTypeKind(self))
-
+        
     def is_sized(self):
+        """Whether the type is sized"""
         return lib.LLVMTypeIsSized(self)
     
     @property
     def name(self):
+        """Get the name of the type"""
         return lib.LLVMPrintTypeToString(self).decode()
 
-    @classmethod
-    def int8(cls, context=None):
+    @staticmethod
+    def int8(context=None):
+        """Create an int8 type in the given context or the global context"""
         if context is not None:
             return Type(lib.LLVMInt8TypeInContext(context))
         else:
             return Type(lib.LLVMInt8Type())
 
-    @classmethod
-    def int1(cls, context=None):
+    @staticmethod
+    def int1(context=None):
+        """Create an int1 type (bool) in the given context or global context"""
         if context is not None:
             return Type(lib.LLVMInt1TypeInContext(context))
         else:
             return Type(lib.LLVMInt1Type())
 
-    @classmethod
-    def int16(cls, context=None):
+    @staticmethod
+    def int16(context=None):
         if context is not None:
             return Type(lib.LLVMInt16TypeInContext(context))
         else:
             return Type(lib.LLVMInt16Type())
 
-    @classmethod
-    def int32(cls, context=None):
+    @staticmethod
+    def int32(context=None):
         if context is not None:
             return Type(lib.LLVMInt32TypeInContext(context))
         else:
             return Type(lib.LLVMInt32Type())
 
-    @classmethod
-    def int64(cls, context=None):
+    @staticmethod
+    def int64(context=None):
         if context is not None:
             return Type(lib.LLVMInt64TypeInContext(context))
         else:
@@ -163,8 +166,8 @@ class Type(LLVMObject):
         return lib.LLVMIsPackedStruct(self)
 
     # Function type
-    @classmethod
-    def function(cls, ret, params, isVarArg):
+    @staticmethod
+    def function(ret, params, isVarArg):
         count, param_array = util.to_c_array(params)
         return Type(lib.LLVMFunctionType(
             ret, param_array, count, isVarArg))

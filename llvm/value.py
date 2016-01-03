@@ -103,7 +103,7 @@ class Value(LLVMObject):
 
     @staticmethod
     def const_struct(vals, packed=False, context=None):
-        """Create a constant struct."""
+        """Create a constant struct"""
         count, val_array = util.to_c_array(vals)
         if context is None:
             return Value(lib.LLVMConstStruct(val_array, count, packed))
@@ -114,6 +114,7 @@ class Value(LLVMObject):
                                                       packed))
 
     def is_const_struct(self):
+        """Whether the value is a constant construct"""
         return bool(lib.LLVMIsAConstantStruct(self))
          
     @property
@@ -164,6 +165,7 @@ class Value(LLVMObject):
 
     @property
     def operand_uses(self):
+        """Get the uses of the operands of this value"""
         n = lib.LLVMGetNumOperands(self)
         return [Use(lib.LLVMGetOperandUse(self, i))
                 for i in range(n)]
