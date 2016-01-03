@@ -20,7 +20,7 @@ class ValueTest(unittest.TestCase):
         self.assertTrue(v.is_null())
         self.assertTrue(v.is_const_int())
         v.dump()
-
+        
     def testUndefInt8(self):
         ty = Type.int8()
         v = Value.undef(ty)
@@ -72,6 +72,13 @@ class ValueTest(unittest.TestCase):
         self.assertEqual([v, v], arr.array_elements())
         self.assertFalse(v.is_const_array())
         self.assertTrue(arr.is_const_array())
+
+    def testConstString(self):
+        v = Value.const_string('abc')
+        self.assertTrue(v.is_const_string())
+
+        a = Value.const_string('cde', self.context)
+        self.assertEqual('cde', a.get_string())
 
     def testStruct(self):
         ty = Type.int8()

@@ -152,6 +152,27 @@ class Value(LLVMObject):
         """Replace all uses of a value with another one."""
         lib.LLVMReplaceAllUsesWith(self, new_val)
 
+    @staticmethod
+    def const_string(s, context=None):
+        """Create a constant string value in the given context"""
+        length = len(s)
+        if context is None:
+            return Value(lib.LLVMConstString(s.encode(), length, False))
+        else:
+            return Value(lib.LLVMConstStringInContext(context,
+                                                      s.encode(),
+                                                      length,
+                                                      False))
+
+    def is_const_string(self):
+        """Whether the value is a constant string"""
+        return lib.LLVMIsConstantString(self)
+
+    def get_string(self):
+        """Get the content of a Constant String value."""
+        out = ctypes.c_uint()
+        return lib.LLVMGetAsString(self, out).decode()
+        
     @property
     def operands(self):
         """Obtain a list of the operands"""
@@ -303,6 +324,24 @@ def register_library(library):
 
     library.LLVMGetNumOperands.argtypes = [Value]
     library.LLVMGetNumOperands.restype = ctypes.c_uint
+
+    library.LLVMConstString.argtypes = [ctypes.c_char_p,
+                                        ctypes.c_uint,
+                                        ctypes.c_bool]
+    library.LLVMConstString.restype = c_object_p
+
+    
+    library.LLVMConstStringInContext.argtypes = [Context,
+                                                 ctypes.c_char_p,
+                                                 ctypes.c_uint,
+                                                 ctypes.c_bool]
+    library.LLVMConstStringInContext.restype = c_object_p
+
+    library.LLVMIsConstantString.argtypes = [Value]
+    library.LLVMIsConstantString.restype = bool
+
+    library.LLVMGetAsString.argtypes = [Value, ctypes.POINTER(ctypes.c_uint)]
+    library.LLVMGetAsString.restype = ctypes.c_char_p
 
     library.LLVMGetOperandUse.argtypes = [Value, ctypes.c_uint]
     library.LLVMGetOperandUse.restype = c_object_p
