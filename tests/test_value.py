@@ -69,7 +69,7 @@ class ValueTest(unittest.TestCase):
 
         arr_ty = arr.type
         self.assertEqual(2, arr_ty.array_length())
-        self.assertEqual([v, v], arr.array_elements())
+        self.assertEqual([v, v], arr.elements())
         self.assertFalse(v.is_const_array())
         self.assertTrue(arr.is_const_array())
 

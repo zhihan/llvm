@@ -90,7 +90,7 @@ class Value(LLVMObject):
         return Value(lib.LLVMConstArray(
             ty, val_array, count))
 
-    def array_elements(self):
+    def elements(self):
         """Get the elements of the constant array and return as a list."""
         ty = self.type
         n = ty.array_length()

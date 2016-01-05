@@ -128,6 +128,7 @@ class Module(LLVMObject):
         return Type(lib.LLVMGetTypeByName(
             self, name.encode()))
 
+    
 
 def register_library(library):
     # Module declarations
