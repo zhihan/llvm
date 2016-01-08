@@ -16,38 +16,59 @@ __all__ = ['Global', 'GlobalIterator']
 lib = get_library()
 
 class Global(Value):
+    """Wrapper of LLVM Global values"""
     def __init__(self, obj):
         LLVMObject.__init__(self, obj)
 
     @staticmethod
     def add(module, ty, name):
+        """Add a named global to the module"""
         return Global(lib.LLVMAddGlobal(module, ty, name.encode()))
 
     @staticmethod
     def get(module, name):
+        """Get the named global of the module"""
         return Global(lib.LLVMGetNamedGlobal(module, name.encode()))
 
-    def set_initializer(self, value):
-        lib.LLVMSetInitializer(self, value)
-
-    def get_initializer(self):
+    @property
+    def initializer(self):
+        """Get the initializer"""
         return Value(lib.LLVMGetInitializer(self))
 
+    @initializer.setter
+    def initializer(self, value):
+        """Set initializer"""
+        lib.LLVMSetInitializer(self, value)
+
+
     def set_const(self, tf):
+        """Set the global to be constant"""
         lib.LLVMSetGlobalConstant(self, tf)
 
     def is_const(self):
+        """Whether the global is constant"""
         return lib.LLVMIsGlobalConstant(self)
 
     @property
     def prev(self):
+        """Get previous global"""
         p = lib.LLVMGetPreviousGlobal(self)
         return p and Global(p)
 
     @property
     def next(self):
+        """Get next global"""
         n = lib.LLVMGetNextGlobal(self)
         return n and Global(n)
+
+    def delete(self):
+        """Delete the global from the module"""
+        lib.LLVMDeleteGlobal(self)
+
+    @staticmethod 
+    def add_alias(module, ty, val, name):
+        """Add an alias (global pointer) to an existing value"""
+        return Value(lib.LLVMAddAlias(module, ty, val, name.encode()))
 
     
 class GlobalIterator(object):
@@ -108,6 +129,14 @@ def register_library(library):
 
     library.LLVMGetPreviousGlobal.argtypes = [Global]
     library.LLVMGetPreviousGlobal.restype = c_object_p
-    
+
+    library.LLVMDeleteGlobal.argtypes = [Global]
+    library.LLVMDeleteGlobal.restype = None
+
+    library.LLVMAddAlias.argtypes = [Module,
+                                     Type,
+                                     Value,
+                                     c_char_p]
+    library.LLVMAddAlias.restype = c_object_p
         
 register_library(lib)

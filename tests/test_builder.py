@@ -26,9 +26,9 @@ class InstructionBuilderTest(unittest.TestCase):
         ty = Type.int8(context=mod.context)
         a = Value.const_int(ty, 1, True)
         g = Global.add(mod, ty, 'x')
-        g.set_initializer(Value.const_int(ty, 4, True))
+        g.initializer = Value.const_int(ty, 4, True)
         bldr = Builder.create()
-        c = bldr.add(g.get_initializer(), a, 'tmp1')
+        c = bldr.add(g.initializer, a, 'tmp1')
         self.assertEqual(5, c.get_signext_value())
 
     def testAddGlobalVal(self):
@@ -36,7 +36,7 @@ class InstructionBuilderTest(unittest.TestCase):
         ty = Type.int8(context=mod.context)
         a = Value.const_int(ty, 1, True)
         g = Global.add(mod, ty, 'x')
-        g.set_initializer(Value.const_int(ty, 4, True))
+        g.initializer = Value.const_int(ty, 4, True)
         g.set_const(True)
 
         t = g.type

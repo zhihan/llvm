@@ -27,24 +27,45 @@ class GlobalTest(unittest.TestCase):
         ty = Type.int8()
         mod = self.module
         g = Global.add(mod, ty, 'x')
-        g.set_initializer(Value.const_int(ty, 4, True))
-        v = g.get_initializer()
+        g.initializer = Value.const_int(ty, 4, True)
+        v = g.initializer
 
         self.assertEqual(4, v.get_signext_value())
 
     def testIter(self):
         ty = Type.int8()
         x = Global.add(self.module, ty, 'x')
-        x.set_initializer(Value.const_int(ty, 1, True))
+        x.initializer = Value.const_int(ty, 1, True)
         y = Global.add(self.module, ty, 'y')
-        y.set_initializer(Value.const_int(ty, 2, True))
+        y.initializer = Value.const_int(ty, 2, True)
 
         g = list(GlobalIterator(self.module))
         self.assertEqual([x, y], g)
 
         g = list(GlobalIterator(self.module, reverse=True))
         self.assertEqual([y, x], g)
-    
+
+    def testDelete(self):
+        ty = Type.int8()
+        x = Global.add(self.module, ty, 'x')
+        x.initializer = Value.const_int(ty, 1, True)
+        y = Global.add(self.module, ty, 'y')
+        y.initializer = Value.const_int(ty, 2, True)   
+
+        y.delete()
+        g = list(GlobalIterator(self.module))
+        self.assertEqual([x], g)
+        
+    def testAddAlias(self):
+        ty = Type.int8()
+        x = Global.add(self.module, ty, 'x')
+        x.initializer = Value.const_int(ty, 1, True)
+        pty = Type.pointer(ty)
+        y = Global.add_alias(self.module, pty, x, 'y')
+
+        g = list(GlobalIterator(self.module))
+        self.assertEqual([x], g)
+
 if __name__ == '__main__':
     unittest.main()
     

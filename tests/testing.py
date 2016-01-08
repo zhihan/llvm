@@ -64,7 +64,7 @@ def create_timestwo_module_with_global():
     mod = Module.CreateWithName('module')
     ty = Type.int8(mod.context)
     k = Global.add(mod, ty, 'k')
-    k.set_initializer(Value.const_int(ty, 2, True))
+    k.initializer = Value.const_int(ty, 2, True)
     
     ft = Type.function(ty, [ty], False)
     f = mod.add_function('timestwo', ft)
@@ -82,7 +82,7 @@ def create_global_load_save_module():
     mod = Module.CreateWithName('module')
     ty = Type.int8(mod.context)
     x = Global.add(mod, ty, 'x')
-    x.set_initializer(Value.const_int(ty, 0, True))
+    x.initializer = Value.const_int(ty, 0, True)
 
     def create_store():
         ft = Type.function(Type.void(), [ty], False)
@@ -117,7 +117,7 @@ def create_global_load_save_array_module():
     v = Value.const_int(ty, 0, True)
     ptr_ty = Type.int64(mod.context)
     v0 = Value.const_int(ptr_ty, 0, True)
-    x.set_initializer(Value.const_array(ty, [v,v]))
+    x.initializer = Value.const_array(ty, [v, v])
 
     def create_store():
         ft = Type.function(Type.void(), [ty, ptr_ty], False)
